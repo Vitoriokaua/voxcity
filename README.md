@@ -31,7 +31,9 @@ O site vai abrir automaticamente no seu navegador (geralmente no endereço http:
 
 ## ⚙️ Como rodar o Backend (Node.js)
 
-*Abra um terminal, certifique-se de estar na pasta raiz do projeto e siga os passos:
+*## ⚙️ Como rodar o Backend (Node.js)
+
+Abra um terminal, certifique-se de estar na pasta raiz do projeto e siga os passos:
 
 1. Entre na pasta do backend:
    cd backend
@@ -39,5 +41,7 @@ O site vai abrir automaticamente no seu navegador (geralmente no endereço http:
    npm install
 3. Gere os arquivos do cliente do Prisma:
    npx prisma generate
-4. Inicie o servidor de desenvolvimento:
-   npm run dev*
+3.5. Configure e sincronize o banco de dados local:
+   npx prisma db push
+4. Inicie o servidor em modo de desenvolvimento (com auto-recarregamento):
+   npx tsx watch src/server.ts

@@ -1,23 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import { Header } from './components/Header';
+import { Navbar } from './components/Navbar';
+import { Feed } from './components/Feed';
+import { FormularioDenuncia } from './components/FormularioDenuncia';
 
 function App() {
+  const [pagina, setPagina] = useState('feed');
+  const [denuncias, setDenuncias] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/denuncias')
+      .then(res => res.json())
+      .then(data => setDenuncias(data))
+      .catch(err => console.error("Erro ao buscar:", err));
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans pb-24">
+      
+      <Header />
+
+      <main className="flex flex-col items-center justify-start min-h-[70vh] p-4 max-w-md mx-auto">
+        {pagina === 'feed' ? (
+          <Feed denuncias={denuncias} />
+        ) : (
+          <div className="w-full flex justify-center mt-10">
+             <FormularioDenuncia />
+          </div>
+        )}
+      </main>
+
+      <Navbar pagina={pagina} setPagina={setPagina} />
+
     </div>
   );
 }
