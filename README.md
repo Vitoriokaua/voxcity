@@ -45,3 +45,13 @@ Abra um terminal, certifique-se de estar na pasta raiz do projeto e siga os pass
    npx prisma db push
 4. Inicie o servidor em modo de desenvolvimento (com auto-recarregamento):
    npx tsx watch src/server.ts
+
+
+
+
+
+
+
+
+
+   ##npx prisma studio

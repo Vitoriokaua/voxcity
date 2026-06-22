@@ -7,16 +7,30 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-// Tabela de Denúncias do VoxCity
+model Usuario {
+  id        String     @id @default(uuid())
+  nome      String
+  email     String     @unique
+  senha     String
+  role      String     @default("CIDADAO")
+  denuncias Denuncia[]
+}
+
 model Denuncia {
   id           String   @id @default(uuid())
   descricao    String
   latitude     Float?   
   longitude    Float?
   imagemUrl    String?  
-  fotoUrl   String?
-  endereco  String?
+  fotoUrl      String?
+  endereco     String?
   apoios       Int      @default(0)
   iaSinalizada Boolean  @default(false) 
   criadoEm     DateTime @default(now())
+  usuarioId    String?
+  usuario      Usuario? @relation(fields: [usuarioId], references: [id])
+  anonimo         Boolean  @default(false)
+  notaComunidade  String?  
+  notaStatus     String   @default("PENDENTE") // PENDENTE ou APROVADA
+  votosMod       Int      @default(0)          // Contador de votos recebidos
 }

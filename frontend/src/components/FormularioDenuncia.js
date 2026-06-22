@@ -7,6 +7,7 @@ export function FormularioDenuncia() {
   const [foto, setFoto] = useState(null);
   const [posicao, setPosicao] = useState(null);
   const [endereco, setEndereco] = useState(''); 
+  const [anonimo, setAnonimo] = useState(false);
   const [etapa, setEtapa] = useState(1);
 
   const enviarDenuncia = async () => {
@@ -20,14 +21,20 @@ export function FormularioDenuncia() {
     formData.append('latitude', posicao.lat);
     formData.append('longitude', posicao.lng);
     formData.append('endereco', endereco); 
+    formData.append('anonimo', anonimo.toString());
     
     if (foto) {
       formData.append('foto', foto);
     }
 
+    const token = localStorage.getItem('token');
+
     try {
       const resposta = await fetch('http://localhost:3001/denuncias', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       });
       
@@ -37,10 +44,21 @@ export function FormularioDenuncia() {
         setFoto(null);
         setPosicao(null);
         setEndereco('');
+        setAnonimo(false);
         setEtapa(1);
+      } else {
+      
+        const textoErro = await resposta.text();
+        try {
+          const jsonErro = JSON.parse(textoErro);
+          alert(`Erro do Servidor (${resposta.status}): ${jsonErro.erro || 'Erro interno'}`);
+        } catch {
+          alert(`Erro do Servidor (${resposta.status}): ${textoErro || 'Erro desconhecido'}`);
+        }
       }
     } catch (erro) {
       console.error("Erro ao conectar com o servidor:", erro);
+      alert("Não foi possível conectar ao servidor. O back-end está rodando?");
     }
   };
 
@@ -52,6 +70,8 @@ export function FormularioDenuncia() {
           setDescricao={setDescricao} 
           foto={foto}
           setFoto={setFoto}
+          anonimo={anonimo}
+          setAnonimo={setAnonimo}
           onAvancar={() => setEtapa(2)} 
         />
       ) : (

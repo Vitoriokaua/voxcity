@@ -1,7 +1,7 @@
 import React from 'react';
 import { ImagePlus } from 'lucide-react';
 
-export function FormEtapaTexto({ descricao, setDescricao, foto, setFoto, onAvancar }) {
+export function FormEtapaTexto({ descricao, setDescricao, foto, setFoto, anonimo, setAnonimo, onAvancar }) {
   const verificarEAvancar = () => {
     if (descricao.trim() === '') {
       alert('Por favor, descreva a ocorrência antes de avançar.');
@@ -27,7 +27,6 @@ export function FormEtapaTexto({ descricao, setDescricao, foto, setFoto, onAvanc
       />
 
       <div className="mb-4">
-        {}
         <label className="flex items-center gap-2 cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 px-4 rounded-xl text-sm transition-all border border-zinc-700">
           <ImagePlus className="w-5 h-5 text-zinc-400" />
           {foto ? foto.name : 'Anexar uma Foto (Obrigatório)'}
@@ -37,6 +36,20 @@ export function FormEtapaTexto({ descricao, setDescricao, foto, setFoto, onAvanc
             onChange={(e) => setFoto(e.target.files[0])} 
             className="hidden" 
           />
+        </label>
+      </div>
+
+      {/* Caixa de seleção para denúncia anônima */}
+      <div className="flex items-center gap-3 my-4 bg-zinc-800/50 p-3 rounded-xl border border-zinc-800">
+        <input 
+          type="checkbox" 
+          id="anonimo"
+          checked={anonimo}
+          onChange={(e) => setAnonimo(e.target.checked)}
+          className="w-5 h-5 accent-red-600 cursor-pointer"
+        />
+        <label htmlFor="anonimo" className="text-zinc-300 text-sm cursor-pointer select-none">
+          Postar anonimamente
         </label>
       </div>
 
