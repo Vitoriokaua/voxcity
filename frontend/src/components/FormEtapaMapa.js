@@ -40,7 +40,7 @@ export function FormEtapaMapa({ posicao, setPosicao, setEndereco, onVoltar, onEn
       
       <div className="h-[250px] w-full rounded-xl overflow-hidden border border-zinc-700 mb-4 z-0">
         <MapContainer 
-          center={[-23.5505, -46.6333]} 
+          center={[-7.0247, -37.2768]} 
           zoom={13} 
           style={{ height: '100%', width: '100%' }}
         >

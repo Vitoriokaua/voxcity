@@ -4,11 +4,19 @@ import { MapPin, PlusCircle, Home, Bell, User } from 'lucide-react';
 export function Navbar({ pagina, setPagina }) {
   return (
     <nav className="fixed bottom-0 w-full bg-black border-t border-zinc-800 px-6 py-4 flex justify-between items-center z-50">
-      <button onClick={() => setPagina('feed')} className={`${pagina === 'feed' ? 'text-white' : 'text-zinc-500'} transition`}>
+      
+      <button 
+        onClick={() => setPagina('feed')} 
+        className={`${pagina === 'feed' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'} transition`}
+      >
         <Home className="w-6 h-6" />
       </button>
       
-      <button className="text-zinc-500 hover:text-zinc-300 transition">
+      {}
+      <button 
+        onClick={() => setPagina('mapa')} 
+        className={`${pagina === 'mapa' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'} transition`}
+      >
         <MapPin className="w-6 h-6" />
       </button>
 
@@ -19,13 +27,20 @@ export function Navbar({ pagina, setPagina }) {
         <PlusCircle className="w-8 h-8" />
       </button>
 
-      <button className="text-zinc-500 hover:text-zinc-300 transition">
+      <button 
+        onClick={() => setPagina('notificacoes')} 
+        className={`${pagina === 'notificacoes' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'} transition`}
+      >
         <Bell className="w-6 h-6" />
       </button>
 
-      <button className="text-zinc-500 hover:text-zinc-300 transition">
+      <button 
+        onClick={() => setPagina('perfil')} 
+        className={`${pagina === 'perfil' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'} transition`}
+      >
         <User className="w-6 h-6" />
       </button>
+
     </nav>
   );
 }
