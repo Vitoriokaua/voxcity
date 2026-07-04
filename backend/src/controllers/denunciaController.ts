@@ -6,9 +6,6 @@ import * as denunciaService from '../services/denunciaService.js';
  * @route POST /api/denuncias
  */
 export const createDenuncia = async (req: Request, res: Response) => {
-  // As propriedades `file` (do multer) e `usuario` (do seu middleware)
-  // são adicionadas ao objeto `req`. Para uma tipagem mais forte,
-  // você pode estender a interface Request do Express.
   const { descricao, latitude, longitude, endereco, anonimo } = req.body;
   const fotoUrl = req.file ? `/uploads/${req.file.filename}` : null;
   const isAnonimo = anonimo === 'true';
