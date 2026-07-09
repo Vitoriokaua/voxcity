@@ -10,19 +10,20 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-
 function MarcadorDinamico({ posicao, setPosicao, setEndereco }) {
   useMapEvents({
     async click(e) {
       setPosicao(e.latlng);
       
-      
       try {
         const resposta = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}`);
         const dados = await resposta.json();
         
-       
-        const localFormatado = dados.address.city || dados.address.town || dados.address.suburb || "Localidade Desconhecida";
+        const endereco = dados.address;
+        const bairro = endereco.suburb || endereco.neighbourhood || endereco.city_district || "";
+        const cidade = endereco.city || endereco.town || endereco.village || "Patos";
+        const localFormatado = bairro ? `${bairro}, ${cidade}` : cidade;
+        
         setEndereco(localFormatado);
       } catch (error) {
         setEndereco("Endereço não encontrado");

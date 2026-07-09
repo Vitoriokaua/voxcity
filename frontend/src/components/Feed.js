@@ -6,9 +6,8 @@ export function Feed({ denuncias }) {
   const ehModerador = usuarioLogado.role === 'MODERADOR';
   
   const [notasInput, setNotasInput] = useState({});
-  const [likes, setLikes] = useState({}); // Estado para controlar os upvotes visuais
-  
-  // Puxa as ações do moderador salvas no navegador para criar a trava
+  const [likes, setLikes] = useState({}); 
+ 
   const acoesMod = JSON.parse(localStorage.getItem('acoesMod') || '{}');
 
   const toggleLike = (idDenuncia) => {
@@ -38,12 +37,12 @@ export function Feed({ denuncias }) {
       });
 
       if (resposta.ok) {
-        // Trava de segurança: Registra que esse moderador CRIOU a nota
+       
         const novasAcoes = { ...acoesMod, [idDenuncia]: 'CRIOU' };
         localStorage.setItem('acoesMod', JSON.stringify(novasAcoes));
         
         alert('Nota sugerida com sucesso! Agora ela precisa do voto de outro moderador para aparecer publicamente.');
-        window.location.reload(); // Recarrega a página para atualizar o feed com a trava ativa
+        window.location.reload(); 
       } else {
         alert('Erro ao adicionar nota.');
       }
@@ -64,12 +63,12 @@ export function Feed({ denuncias }) {
       });
 
       if (resposta.ok) {
-        // Trava de segurança: Registra que esse moderador VOTOU na nota
+       
         const novasAcoes = { ...acoesMod, [idDenuncia]: 'VOTOU' };
         localStorage.setItem('acoesMod', JSON.stringify(novasAcoes));
         
         alert('Voto computado! Se for o segundo voto, a nota agora é pública.');
-        window.location.reload(); // Recarrega a página para atualizar o feed com a trava ativa
+        window.location.reload();
       } else {
         alert('Erro ao validar nota.');
       }
@@ -93,7 +92,7 @@ export function Feed({ denuncias }) {
         
         const mostraNota = d.notaComunidade && (d.notaStatus === 'APROVADA' || ehModerador);
         
-        // Verifica se o moderador já interagiu com esta denúncia específica hoje
+        
         const jaInteragiu = acoesMod[d.id] === 'CRIOU' || acoesMod[d.id] === 'VOTOU';
 
         return (
@@ -158,7 +157,7 @@ export function Feed({ denuncias }) {
                     d.notaStatus === 'APROVADA' ? 'text-amber-200' : 'text-blue-200'
                   }`}>{d.notaComunidade}</p>
                   
-                  {/* Botão de votar SÓ aparece se for Pendente e se o moderador AINDA NÃO tiver interagido */}
+                  {}
                   {ehModerador && d.notaStatus === 'PENDENTE' && !jaInteragiu && (
                     <button
                       onClick={() => validarNota(d.id)}
@@ -168,7 +167,7 @@ export function Feed({ denuncias }) {
                     </button>
                   )}
 
-                  {/* Aviso visual de trava se ele já interagiu */}
+                  {}
                   {ehModerador && d.notaStatus === 'PENDENTE' && jaInteragiu && (
                     <span className="text-[10px] text-zinc-500 mt-2 flex items-center gap-1">
                       <CheckCircle className="w-3 h-3 text-zinc-600" /> Você já interagiu com esta nota.
