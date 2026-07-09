@@ -37,7 +37,6 @@ export function Feed({ denuncias }) {
       });
 
       if (resposta.ok) {
-       
         const novasAcoes = { ...acoesMod, [idDenuncia]: 'CRIOU' };
         localStorage.setItem('acoesMod', JSON.stringify(novasAcoes));
         
@@ -63,7 +62,6 @@ export function Feed({ denuncias }) {
       });
 
       if (resposta.ok) {
-       
         const novasAcoes = { ...acoesMod, [idDenuncia]: 'VOTOU' };
         localStorage.setItem('acoesMod', JSON.stringify(novasAcoes));
         
@@ -91,22 +89,38 @@ export function Feed({ denuncias }) {
       {denuncias.map((d) => {
         
         const mostraNota = d.notaComunidade && (d.notaStatus === 'APROVADA' || ehModerador);
-        
-        
         const jaInteragiu = acoesMod[d.id] === 'CRIOU' || acoesMod[d.id] === 'VOTOU';
+
+        // Garante a leitura correta independente da propriedade vinda da API
+        const campoData = d.dataCriacao || d.criadoEm;
 
         return (
           <div key={d.id} className="w-full bg-zinc-900 p-4 rounded-xl border border-zinc-800 shadow-md flex flex-col gap-3">
             
             <div>
-              <div className="flex items-center gap-2 mb-1 text-zinc-400">
-                <User className="w-4 h-4 text-zinc-500" />
-                <span className="text-xs font-bold text-zinc-300">
-                  {d.anonimo ? "Anônimo" : (d.usuario?.nome || "Cidadão")}
-                </span>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2 text-zinc-400">
+                  <User className="w-4 h-4 text-zinc-500" />
+                  <span className="text-xs font-bold text-zinc-300">
+                    {d.anonimo ? "Anônimo" : (d.usuario?.nome || "Cidadão")}
+                  </span>
+                </div>
+                
+                {/* Renderização segura de Data e Horário */}
+                {campoData && (
+                  <span className="text-[10px] text-zinc-500 font-mono">
+                    {new Date(campoData).toLocaleString('pt-BR', { 
+                      day: '2-digit', 
+                      month: '2-digit', 
+                      year: 'numeric',
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </span>
+                )}
               </div>
 
-              <div className="flex items-center gap-2 text-zinc-500">
+              <div className="flex items-center gap-2 text-zinc-500 mt-1">
                 <MapPin className="w-4 h-4 text-red-500" />
                 <span className="text-xs font-medium">
                   {d.endereco || 'Local não registrado'}
@@ -157,7 +171,6 @@ export function Feed({ denuncias }) {
                     d.notaStatus === 'APROVADA' ? 'text-amber-200' : 'text-blue-200'
                   }`}>{d.notaComunidade}</p>
                   
-                  {}
                   {ehModerador && d.notaStatus === 'PENDENTE' && !jaInteragiu && (
                     <button
                       onClick={() => validarNota(d.id)}
@@ -167,7 +180,6 @@ export function Feed({ denuncias }) {
                     </button>
                   )}
 
-                  {}
                   {ehModerador && d.notaStatus === 'PENDENTE' && jaInteragiu && (
                     <span className="text-[10px] text-zinc-500 mt-2 flex items-center gap-1">
                       <CheckCircle className="w-3 h-3 text-zinc-600" /> Você já interagiu com esta nota.
