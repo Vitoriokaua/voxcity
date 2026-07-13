@@ -1,33 +1,12 @@
 import { Router } from 'express';
 import { verificarToken, apenasModerador } from '../middlewares/authMiddleware.js';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import uploadCloudinary from '../../configCloudinary.js'; // Puxa a nossa configuração do Cloudinary
 import * as denunciaController from '../controllers/denunciaController.js';
 
 const router = Router();
 
-// Define o diretório de uploads
-const uploadDir = 'uploads';
-
-// Garante que o diretório de uploads exista. Se não, o cria
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Configuração do Multer para upload de arquivos
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const nomeUnico = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, nomeUnico + path.extname(file.originalname));
-  }
-});
-const upload = multer({ storage: storage });
-
-router.post('/', verificarToken, upload.single('foto'), denunciaController.createDenuncia);
+// Agora a rota usa o uploadCloudinary para receber a 'foto' e mandar pra nuvem!
+router.post('/', verificarToken, uploadCloudinary.single('foto'), denunciaController.createDenuncia);
 
 router.get('/', denunciaController.getDenuncias);
 

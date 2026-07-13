@@ -7,7 +7,9 @@ import * as denunciaService from '../services/denunciaService.js';
  */
 export const createDenuncia = async (req: Request, res: Response) => {
   const { descricao, latitude, longitude, endereco, anonimo } = req.body;
-  const fotoUrl = req.file ? `/uploads/${req.file.filename}` : null;
+  
+  // UNICA ALTERAÇÃO: Agora pegamos a URL direta do Cloudinary que vem no req.file.path
+  const fotoUrl = req.file ? req.file.path : null;
   const isAnonimo = anonimo === 'true';
 
   try {
