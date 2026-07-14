@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Mail, Lock, User, MapPin } from "lucide-react";
+import { Mail, Lock, User, MapPin, ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
 
-const TelaLogin = ({ aoLogar }) => {
+const TelaLogin = ({ aoLogar, aoVoltar }) => {
+  // <-- Recebendo o aoVoltar
   const [modo, setModo] = useState("login");
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -32,7 +34,9 @@ const TelaLogin = ({ aoLogar }) => {
         aoLogar(dados.usuario);
       } else {
         setModo("login");
-        alert("Cadastro realizado com sucesso! Agora faça o seu login.");
+        toast.success(
+          "Cadastro realizado com sucesso! Agora faça o seu login.",
+        );
       }
     } catch (err) {
       setErro(err.message);
@@ -40,10 +44,22 @@ const TelaLogin = ({ aoLogar }) => {
   };
 
   return (
-    <div className="w-full max-w-md bg-zinc-900/80 backdrop-blur-md p-8 rounded-3xl border border-zinc-800/80 shadow-2xl">
+    // Adicionamos 'relative' na div principal para posicionar o botão de voltar
+    <div className="w-full max-w-md bg-zinc-900/80 backdrop-blur-md p-8 rounded-3xl border border-zinc-800/80 shadow-2xl relative">
+      {/* BOTAO DE VOLTAR */}
+      {aoVoltar && (
+        <button
+          onClick={aoVoltar}
+          className="absolute top-6 left-6 p-2 bg-zinc-800/50 hover:bg-zinc-700 text-zinc-400 hover:text-white rounded-full transition-all"
+          title="Voltar para o Início"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+      )}
+
       {/* BRANDING E TEXTOS */}
       <div className="flex flex-col items-center justify-center text-center mb-8">
-        <div className="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4 border border-red-500/20">
+        <div className="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4 border border-red-500/20 mt-2">
           <MapPin className="w-7 h-7 text-red-500" />
         </div>
         <h1 className="text-2xl font-black text-zinc-100 tracking-tight">
