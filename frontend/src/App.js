@@ -25,20 +25,25 @@ function App() {
       .catch((err) => console.error("Erro ao buscar:", err));
   }, []);
 
-  if (!usuario) {
+  if (pagina === "login") {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-        <TelaLogin aoLogar={(u) => setUsuario(u)} />
+        <TelaLogin
+          aoLogar={(u) => {
+            setUsuario(u);
+            setPagina("feed");
+          }}
+          aoVoltar={() => setPagina("feed")}
+        />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans pb-24 relative">
-      <Header />
+      <Header usuario={usuario} setPagina={setPagina} />
 
       <main className="flex flex-col items-center justify-start min-h-[70vh] p-4 max-w-md mx-auto">
-        {}
         {pagina === "feed" && <Feed denuncias={denuncias} />}
 
         {pagina === "form" && (
@@ -47,15 +52,12 @@ function App() {
           </div>
         )}
 
-        {}
         {pagina === "mapa" && <Mapa denuncias={denuncias} />}
-
         {pagina === "notificacoes" && <Notificacoes />}
-
         {pagina === "perfil" && <Perfil />}
       </main>
 
-      <Navbar pagina={pagina} setPagina={setPagina} />
+      <Navbar pagina={pagina} setPagina={setPagina} usuario={usuario} />
     </div>
   );
 }

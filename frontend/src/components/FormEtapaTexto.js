@@ -1,15 +1,24 @@
-import React from 'react';
-import { ImagePlus } from 'lucide-react';
+import React from "react";
+import { ImagePlus } from "lucide-react";
+import toast from "react-hot-toast";
 
-export function FormEtapaTexto({ descricao, setDescricao, foto, setFoto, anonimo, setAnonimo, onAvancar }) {
+export function FormEtapaTexto({
+  descricao,
+  setDescricao,
+  foto,
+  setFoto,
+  anonimo,
+  setAnonimo,
+  onAvancar,
+}) {
   const verificarEAvancar = () => {
-    if (descricao.trim() === '') {
-      alert('Por favor, descreva a ocorrência antes de avançar.');
+    if (descricao.trim() === "") {
+      toast.error("Por favor, descreva a ocorrência antes de avançar.");
       return;
     }
-  
+
     if (!foto) {
-      alert('A foto da ocorrência é obrigatória!');
+      toast.error("A foto da ocorrência é obrigatória!");
       return;
     }
     onAvancar();
@@ -18,8 +27,8 @@ export function FormEtapaTexto({ descricao, setDescricao, foto, setFoto, anonimo
   return (
     <>
       <h2 className="text-lg font-semibold mb-4 text-white">Nova Ocorrência</h2>
-      
-      <textarea 
+
+      <textarea
         value={descricao}
         onChange={(e) => setDescricao(e.target.value)}
         placeholder="Descreva o problema detalhadamente..."
@@ -29,31 +38,34 @@ export function FormEtapaTexto({ descricao, setDescricao, foto, setFoto, anonimo
       <div className="mb-4">
         <label className="flex items-center gap-2 cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 px-4 rounded-xl text-sm transition-all border border-zinc-700">
           <ImagePlus className="w-5 h-5 text-zinc-400" />
-          {foto ? foto.name : 'Anexar uma Foto (Obrigatório)'}
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={(e) => setFoto(e.target.files[0])} 
-            className="hidden" 
+          {foto ? foto.name : "Anexar uma Foto (Obrigatório)"}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setFoto(e.target.files[0])}
+            className="hidden"
           />
         </label>
       </div>
 
       {/* Caixa de seleção para denúncia anônima */}
       <div className="flex items-center gap-3 my-4 bg-zinc-800/50 p-3 rounded-xl border border-zinc-800">
-        <input 
-          type="checkbox" 
+        <input
+          type="checkbox"
           id="anonimo"
           checked={anonimo}
           onChange={(e) => setAnonimo(e.target.checked)}
           className="w-5 h-5 accent-red-600 cursor-pointer"
         />
-        <label htmlFor="anonimo" className="text-zinc-300 text-sm cursor-pointer select-none">
+        <label
+          htmlFor="anonimo"
+          className="text-zinc-300 text-sm cursor-pointer select-none"
+        >
           Postar anonimamente
         </label>
       </div>
 
-      <button 
+      <button
         onClick={verificarEAvancar}
         className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-95"
       >

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export function useFeed() {
   const usuarioLogado = JSON.parse(localStorage.getItem("usuario") || "{}");
@@ -17,7 +18,7 @@ export function useFeed() {
   const salvarNotaComunidade = async (idDenuncia) => {
     const textoNota = notasInput[idDenuncia];
     if (!textoNota || textoNota.trim() === "") {
-      alert("Escreva alguma nota antes de salvar!");
+      toast.error("Escreva alguma nota antes de salvar!");
       return;
     }
 
@@ -41,10 +42,10 @@ export function useFeed() {
         setAcoesMod(novasAcoes);
         localStorage.setItem("acoesMod", JSON.stringify(novasAcoes));
 
-        alert("Nota sugerida com sucesso!");
+        toast.success("Nota sugerida com sucesso!");
         window.location.reload();
       } else {
-        alert("Erro ao adicionar nota.");
+        toast.error("Erro ao adicionar nota.");
       }
     } catch (erro) {
       console.error("Erro ao conectar com o servidor:", erro);
@@ -68,10 +69,10 @@ export function useFeed() {
         setAcoesMod(novasAcoes);
         localStorage.setItem("acoesMod", JSON.stringify(novasAcoes));
 
-        alert("Voto computado!");
+        toast.success("Voto computado!");
         window.location.reload();
       } else {
-        alert("Erro ao validar nota.");
+        toast.error("Erro ao validar nota.");
       }
     } catch (erro) {
       console.error("Erro ao conectar com o servidor:", erro);
