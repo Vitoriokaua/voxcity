@@ -35,4 +35,6 @@ router.patch('/:id/nota', verificarToken, apenasModerador, denunciaController.ad
 
 router.post('/:id/nota/validar', verificarToken, apenasModerador, denunciaController.validarNotaComunidade);
 
+router.post('/:id/apoiar', verificarToken, denunciaController.apoiarDenuncia);
+
 export default router;

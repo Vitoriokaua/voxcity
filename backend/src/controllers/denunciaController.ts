@@ -88,3 +88,23 @@ export const validarNotaComunidade = async (req: Request, res: Response) => {
     res.status(500).json({ erro: "Erro interno ao validar nota da comunidade." });
   }
 };
+
+/**
+ * @description Incrementa os apoios de uma denúncia
+ * @route POST /denuncias/:id/apoiar
+ */
+export const apoiarDenuncia = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    const denunciaAtualizada = await denunciaService.apoiarDenuncia(String(id));
+    
+    res.json(denunciaAtualizada);
+  } catch (error: any) {
+    console.error("Erro ao apoiar denúncia:", error);
+    if (error.code === 'P2025') { // Erro do Prisma (registro não encontrado)
+      return res.status(404).json({ erro: "Denúncia não encontrada" });
+    }
+    res.status(500).json({ erro: "Erro interno ao apoiar denúncia" });
+  }
+};
