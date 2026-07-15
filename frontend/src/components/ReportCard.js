@@ -56,13 +56,13 @@ export function ReportCard({ denuncia: d, hooks }) {
       </div>
 
       {/* IMAGEM E DESCRIÇÃO */}
-      {d.fotoUrl && (
-        <img
-          src={`http://localhost:3001${d.fotoUrl}`}
-          alt="Ocorrência"
-          className="w-full h-48 object-cover rounded-xl border border-zinc-800"
-        />
-      )}
+{d.fotoUrl && (
+  <img
+    src={d.fotoUrl.startsWith('http') ? d.fotoUrl : `http://localhost:3001${d.fotoUrl}`}
+    alt="Ocorrência"
+    className="w-full h-48 object-cover rounded-xl border border-zinc-800"
+  />
+)}
       <p className="text-zinc-100 text-sm">{d.descricao}</p>
 
       {/* APOIAR */}
