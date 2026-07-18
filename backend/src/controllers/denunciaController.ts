@@ -34,6 +34,7 @@ export const createDenuncia = async (req: Request, res: Response) => {
  * @description Busca todas as denúncias
  * @route GET /api/denuncias
  */
+
 export const getDenuncias = async (req: Request, res: Response) => {
   try {
     const denuncias = await denunciaService.findAll();
@@ -48,6 +49,7 @@ export const getDenuncias = async (req: Request, res: Response) => {
  * @description Adiciona uma nota da comunidade a uma denúncia
  * @route PATCH /api/denuncias/:id/nota
  */
+
 export const addNotaComunidade = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -90,21 +92,20 @@ export const validarNotaComunidade = async (req: Request, res: Response) => {
 };
 
 /**
- * @description Incrementa os apoios de uma denúncia
- * @route POST /denuncias/:id/apoiar
+ * @description Apoia uma denúncia, incrementando o contador de apoios.
+ * @route POST /api/denuncias/:id/apoiar
  */
 export const apoiarDenuncia = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
     const denunciaAtualizada = await denunciaService.apoiarDenuncia(String(id));
-    
     res.json(denunciaAtualizada);
   } catch (error: any) {
-    console.error("Erro ao apoiar denúncia:", error);
-    if (error.code === 'P2025') { // Erro do Prisma (registro não encontrado)
-      return res.status(404).json({ erro: "Denúncia não encontrada" });
+    console.error("Erro no controller ao apoiar denúncia:", error);
+    // O Prisma pode lançar um erro se o registro não for encontrado
+    if (error.code === 'P2025') {
+      return res.status(404).json({ erro: "Denúncia não encontrada." });
     }
-    res.status(500).json({ erro: "Erro interno ao apoiar denúncia" });
+    res.status(500).json({ erro: "Erro interno ao apoiar denúncia." });
   }
 };

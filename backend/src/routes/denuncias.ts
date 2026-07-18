@@ -33,7 +33,7 @@ router.get('/', denunciaController.getDenuncias);
 
 router.patch('/:id/nota', verificarToken, apenasModerador, denunciaController.addNotaComunidade);
 
-router.post('/:id/nota/validar', verificarToken, apenasModerador, denunciaController.validarNotaComunidade);
+router.patch('/:id/nota/validar', verificarToken, apenasModerador, denunciaController.validarNotaComunidade);
 
 router.post('/:id/apoiar', verificarToken, denunciaController.apoiarDenuncia);
 
