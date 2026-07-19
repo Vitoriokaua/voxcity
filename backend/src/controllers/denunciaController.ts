@@ -90,22 +90,3 @@ export const validarNotaComunidade = async (req: Request, res: Response) => {
     res.status(500).json({ erro: "Erro interno ao validar nota da comunidade." });
   }
 };
-
-/**
- * @description Apoia uma denúncia, incrementando o contador de apoios.
- * @route POST /api/denuncias/:id/apoiar
- */
-export const apoiarDenuncia = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const denunciaAtualizada = await denunciaService.apoiarDenuncia(String(id));
-    res.json(denunciaAtualizada);
-  } catch (error: any) {
-    console.error("Erro no controller ao apoiar denúncia:", error);
-    // O Prisma pode lançar um erro se o registro não for encontrado
-    if (error.code === 'P2025') {
-      return res.status(404).json({ erro: "Denúncia não encontrada." });
-    }
-    res.status(500).json({ erro: "Erro interno ao apoiar denúncia." });
-  }
-};

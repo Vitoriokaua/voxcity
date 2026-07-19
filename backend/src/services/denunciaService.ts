@@ -79,17 +79,3 @@ export const validateCommunityNote = async (id: string) => {
     },
   });
 };
-
-export const apoiarDenuncia = async (id: string) =>{
-    return prisma.denuncia.update({
-      where: { id },
-      data: { 
-        apoios: { increment: 1 } 
-      },
-      include: {
-        usuario: {
-          select: { nome: true }
-        }
-      }
-    });
-};

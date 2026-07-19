@@ -4,6 +4,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import * as denunciaController from '../controllers/denunciaController.js';
+import upvoteRoutes from './upvotes.js';
 
 const router = Router();
 
@@ -35,6 +36,6 @@ router.patch('/:id/nota', verificarToken, apenasModerador, denunciaController.ad
 
 router.patch('/:id/nota/validar', verificarToken, apenasModerador, denunciaController.validarNotaComunidade);
 
-router.post('/:id/apoiar', verificarToken, denunciaController.apoiarDenuncia);
+router.use('/:id/apoiar', upvoteRoutes);
 
 export default router;
