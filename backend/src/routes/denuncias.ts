@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { verificarToken, apenasModerador } from '../middlewares/authMiddleware.js';
 import uploadCloudinary from '../../configCloudinary.js'; // Puxa a nossa configuração do Cloudinary
 import * as denunciaController from '../controllers/denunciaController.js';
+import upvoteRoutes from './upvotes.js';
 
 const router = Router();
 
@@ -12,6 +13,8 @@ router.get('/', denunciaController.getDenuncias);
 
 router.patch('/:id/nota', verificarToken, apenasModerador, denunciaController.addNotaComunidade);
 
-router.post('/:id/nota/validar', verificarToken, apenasModerador, denunciaController.validarNotaComunidade);
+router.patch('/:id/nota/validar', verificarToken, apenasModerador, denunciaController.validarNotaComunidade);
+
+router.use('/:id/apoiar', upvoteRoutes);
 
 export default router;

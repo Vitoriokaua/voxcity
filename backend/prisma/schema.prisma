@@ -14,23 +14,37 @@ model Usuario {
   senha     String
   role      String     @default("CIDADAO")
   denuncias Denuncia[]
+  apoios    Apoio[]
 }
 
 model Denuncia {
   id           String   @id @default(uuid())
   descricao    String
-  latitude     Float?   
+  latitude     Float?
   longitude    Float?
-  imagemUrl    String?  
+  imagemUrl    String?
   fotoUrl      String?
   endereco     String?
   apoios       Int      @default(0)
-  iaSinalizada Boolean  @default(false) 
+  apoiosDe     Apoio[]
+  iaSinalizada Boolean  @default(false)
   criadoEm     DateTime @default(now())
   usuarioId    String?
   usuario      Usuario? @relation(fields: [usuarioId], references: [id])
   anonimo         Boolean  @default(false)
-  notaComunidade  String?  
+  notaComunidade  String?
   notaStatus     String   @default("PENDENTE") // PENDENTE ou APROVADA
   votosMod       Int      @default(0)          // Contador de votos recebidos
+}
+
+// Registra qual usuário apoiou qual denúncia, garantindo no máximo 1 apoio por par.
+model Apoio {
+  id         String   @id @default(uuid())
+  usuarioId  String
+  denunciaId String
+  criadoEm   DateTime @default(now())
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  denuncia   Denuncia @relation(fields: [denunciaId], references: [id])
+
+  @@unique([usuarioId, denunciaId])
 }

@@ -36,6 +36,7 @@ export const createDenuncia = async (req: Request, res: Response) => {
  * @description Busca todas as denúncias
  * @route GET /api/denuncias
  */
+
 export const getDenuncias = async (req: Request, res: Response) => {
   try {
     const denuncias = await denunciaService.findAll();
@@ -50,6 +51,7 @@ export const getDenuncias = async (req: Request, res: Response) => {
  * @description Adiciona uma nota da comunidade a uma denúncia
  * @route PATCH /api/denuncias/:id/nota
  */
+
 export const addNotaComunidade = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
