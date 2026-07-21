@@ -13,8 +13,10 @@ function App() {
   const [pagina, setPagina] = useState("feed");
   const [denuncias, setDenuncias] = useState([]);
 
-
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+ 
+  const API_URL = process.env.NODE_ENV === "development" 
+    ? "http://localhost:3001" 
+    : "https://voxcity-backend.onrender.com";
 
   useEffect(() => {
     const salvo = localStorage.getItem("usuario");
@@ -22,7 +24,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // 🔥 LOCALHOST SUBSTITUÍDO AQUI:
     fetch(`${API_URL}/denuncias`)
       .then((res) => res.json())
       .then((data) => setDenuncias(data))

@@ -10,7 +10,9 @@ const TelaLogin = ({ aoLogar, aoVoltar }) => {
   const [erro, setErro] = useState("");
 
 
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  const API_URL = process.env.NODE_ENV === "development" 
+    ? "http://localhost:3001" 
+    : "https://voxcity-backend.onrender.com";
 
   const manipularSubmissao = async (e) => {
     e.preventDefault();
@@ -20,7 +22,6 @@ const TelaLogin = ({ aoLogar, aoVoltar }) => {
     const corpo = modo === "login" ? { email, senha } : { nome, email, senha };
 
     try {
-    
       const res = await fetch(`${API_URL}${url}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
