@@ -13,17 +13,16 @@ function App() {
   const [pagina, setPagina] = useState("feed");
   const [denuncias, setDenuncias] = useState([]);
 
- 
-  const API_URL = process.env.NODE_ENV === "development" 
-    ? "http://localhost:3001" 
-    : "https://voxcity-backend.onrender.com";
-
   useEffect(() => {
     const salvo = localStorage.getItem("usuario");
     if (salvo) setUsuario(JSON.parse(salvo));
   }, []);
 
   useEffect(() => {
+    const API_URL = process.env.NODE_ENV === "development" 
+      ? "http://localhost:3001" 
+      : "https://voxcity-backend.onrender.com";
+
     fetch(`${API_URL}/denuncias`)
       .then((res) => res.json())
       .then((data) => setDenuncias(data))
