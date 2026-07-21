@@ -23,6 +23,9 @@ export function ReportCard({ denuncia: d, hooks }) {
     d.notaComunidade && (d.notaStatus === "APROVADA" || ehModerador);
   const jaInteragiu = acoesMod[d.id] === "CRIOU" || acoesMod[d.id] === "VOTOU";
   const campoData = d.dataCriacao || d.criadoEm;
+  
+  // 1️⃣ ADICIONAMOS A VARIÁVEL AQUI:
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
   return (
     <div className="w-full bg-zinc-900 p-4 rounded-xl border border-zinc-800 shadow-md flex flex-col gap-3">
@@ -56,13 +59,14 @@ export function ReportCard({ denuncia: d, hooks }) {
       </div>
 
       {/* IMAGEM E DESCRIÇÃO */}
-{d.fotoUrl && (
-  <img
-    src={d.fotoUrl.startsWith('http') ? d.fotoUrl : `http://localhost:3001${d.fotoUrl}`}
-    alt="Ocorrência"
-    className="w-full h-48 object-cover rounded-xl border border-zinc-800"
-  />
-)}
+      {d.fotoUrl && (
+        <img
+          // 2️⃣ TROCAMOS O LOCALHOST PELA VARIÁVEL AQUI:
+          src={d.fotoUrl.startsWith('http') ? d.fotoUrl : `${API_URL}${d.fotoUrl}`}
+          alt="Ocorrência"
+          className="w-full h-48 object-cover rounded-xl border border-zinc-800"
+        />
+      )}
       <p className="text-zinc-100 text-sm">{d.descricao}</p>
 
       {/* APOIAR */}

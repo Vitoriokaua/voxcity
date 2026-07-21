@@ -5,6 +5,9 @@ export function useFeed() {
   const usuarioLogado = JSON.parse(localStorage.getItem("usuario") || "{}");
   const ehModerador = usuarioLogado.role === "MODERADOR";
 
+
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
   const [notasInput, setNotasInput] = useState({});
   const [likes, setLikes] = useState({});
   const [acoesMod, setAcoesMod] = useState(() =>
@@ -25,8 +28,9 @@ export function useFeed() {
     const token = localStorage.getItem("token");
 
     try {
+      
       const resposta = await fetch(
-        `http://localhost:3001/denuncias/${idDenuncia}/nota`,
+        `${API_URL}/denuncias/${idDenuncia}/nota`,
         {
           method: "PATCH",
           headers: {
@@ -56,12 +60,13 @@ export function useFeed() {
     const token = localStorage.getItem("token");
 
     try {
+   
       const resposta = await fetch(
-        `http://localhost:3001/denuncias/${idDenuncia}/nota/validar`,
+        `${API_URL}/denuncias/${idDenuncia}/nota/validar`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
-        },
+        }
       );
 
       if (resposta.ok) {
