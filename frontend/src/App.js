@@ -13,13 +13,17 @@ function App() {
   const [pagina, setPagina] = useState("feed");
   const [denuncias, setDenuncias] = useState([]);
 
+
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
   useEffect(() => {
     const salvo = localStorage.getItem("usuario");
     if (salvo) setUsuario(JSON.parse(salvo));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:3001/denuncias")
+    // 🔥 LOCALHOST SUBSTITUÍDO AQUI:
+    fetch(`${API_URL}/denuncias`)
       .then((res) => res.json())
       .then((data) => setDenuncias(data))
       .catch((err) => console.error("Erro ao buscar:", err));

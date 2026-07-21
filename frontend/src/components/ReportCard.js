@@ -24,7 +24,7 @@ export function ReportCard({ denuncia: d, hooks }) {
   const jaInteragiu = acoesMod[d.id] === "CRIOU" || acoesMod[d.id] === "VOTOU";
   const campoData = d.dataCriacao || d.criadoEm;
   
-  // 1️⃣ ADICIONAMOS A VARIÁVEL AQUI:
+  
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
   return (
