@@ -7,11 +7,15 @@ import TelaLogin from "./components/TelaLogin";
 import { Perfil } from "./components/Perfil";
 import { Notificacoes } from "./components/Notificacoes";
 import { Mapa } from "./components/Mapa";
+import { useBusca } from "./components/useBusca"; 
 
 function App() {
   const [usuario, setUsuario] = useState(null);
   const [pagina, setPagina] = useState("feed");
   const [denuncias, setDenuncias] = useState([]);
+
+
+  const { termoBusca, setTermoBusca, denunciasFiltradas } = useBusca(denuncias);
 
   useEffect(() => {
     const salvo = localStorage.getItem("usuario");
@@ -45,10 +49,16 @@ function App() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans pb-24 relative">
-      <Header usuario={usuario} setPagina={setPagina} />
+      <Header 
+        usuario={usuario} 
+        setPagina={setPagina} 
+        termoBusca={termoBusca}
+        setTermoBusca={setTermoBusca}
+      />
 
       <main className="flex flex-col items-center justify-start min-h-[70vh] p-4 max-w-md mx-auto">
-        {pagina === "feed" && <Feed denuncias={denuncias} />}
+        {/*denunciasFiltradas aqui */}
+        {pagina === "feed" && <Feed denuncias={denunciasFiltradas} />}
 
         {pagina === "form" && (
           <div className="w-full flex justify-center mt-10">
@@ -56,7 +66,9 @@ function App() {
           </div>
         )}
 
-        {pagina === "mapa" && <Mapa denuncias={denuncias} />}
+        {/* denunciasFiltradas no mapa  */}
+        {pagina === "mapa" && <Mapa denuncias={denunciasFiltradas} />}
+        
         {pagina === "notificacoes" && <Notificacoes />}
         {pagina === "perfil" && <Perfil />}
       </main>
