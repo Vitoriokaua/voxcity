@@ -53,7 +53,7 @@ model Apoio {
 model Comentario {
   id          String    @id @default(uuid())
   texto       String
-  criadoEm    DateTime  @default(now())
+  criadoEm DateTime @default(now())
   usuarioId   String
   denunciaId  String
   usuario      Usuario   @relation(fields: [usuarioId], references: [id])

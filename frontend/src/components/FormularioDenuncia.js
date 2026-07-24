@@ -32,8 +32,11 @@ export function FormularioDenuncia() {
 
     const token = localStorage.getItem("token");
 
-    try {
-      const resposta = await fetch("http://localhost:3001/denuncias", {
+try {
+      // Cria a variável que decide se usa Nuvem ou Localhost
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
+      const resposta = await fetch(`${API_URL}/denuncias`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

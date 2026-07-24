@@ -3,12 +3,16 @@ import { Mail, Lock, User, MapPin, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 
 const TelaLogin = ({ aoLogar, aoVoltar }) => {
-  // <-- Recebendo o aoVoltar
   const [modo, setModo] = useState("login");
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+
+
+  const API_URL = process.env.NODE_ENV === "development" 
+    ? "http://localhost:3001" 
+    : "https://voxcity-backend.onrender.com";
 
   const manipularSubmissao = async (e) => {
     e.preventDefault();
@@ -18,7 +22,7 @@ const TelaLogin = ({ aoLogar, aoVoltar }) => {
     const corpo = modo === "login" ? { email, senha } : { nome, email, senha };
 
     try {
-      const res = await fetch(`http://localhost:3001${url}`, {
+      const res = await fetch(`${API_URL}${url}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(corpo),
@@ -44,7 +48,6 @@ const TelaLogin = ({ aoLogar, aoVoltar }) => {
   };
 
   return (
-    // Adicionamos 'relative' na div principal para posicionar o botão de voltar
     <div className="w-full max-w-md bg-zinc-900/80 backdrop-blur-md p-8 rounded-3xl border border-zinc-800/80 shadow-2xl relative">
       {/* BOTAO DE VOLTAR */}
       {aoVoltar && (
