@@ -1,6 +1,14 @@
-# VoxCity - Sistema de Denúncias Urbanas
+<div align="center">
 
-Bem-vindo ao repositório do **VoxCity**, o megafone digital da nossa cidade!
+# 📢 VoxCity - Sistema de Denúncias Urbanas
+
+O megafone digital da nossa cidade! 🏙️
+
+[![Status](https://img.shields.io/badge/status-em%20andamento-yellow)](https://github.com/Vitoriokaua/voxcity)
+
+</div>
+
+## 🌐 **Acesse o site:** [VoxCity](https://voxcity-swart.vercel.app/)
 
 ## 🛠️ Pré-requisitos
 
@@ -31,7 +39,6 @@ O site vai abrir automaticamente no seu navegador (geralmente no endereço http:
 
 ## ⚙️ Como rodar o Backend (Node.js)
 
-*## ⚙️ Como rodar o Backend (Node.js)
 
 Abra um terminal, certifique-se de estar na pasta raiz do projeto e siga os passos:
 
@@ -51,7 +58,9 @@ Abra um terminal, certifique-se de estar na pasta raiz do projeto e siga os pass
 
 
 
+## 🗄️ Prisma Studio
+
+Para abrir o Prisma Studio, execute:
 
 
-
-   ##npx prisma studio
+   npx prisma studio
