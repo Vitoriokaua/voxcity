@@ -1,97 +1,87 @@
 import { useState } from "react";
-import toast from "react-hot-toast";
 
 export function useFeed() {
   const usuarioLogado = JSON.parse(localStorage.getItem("usuario") || "{}");
   const ehModerador = usuarioLogado.role === "MODERADOR";
 
-
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-
   const [notasInput, setNotasInput] = useState({});
-  const [likes, setLikes] = useState({});
   const [acoesMod, setAcoesMod] = useState(() =>
     JSON.parse(localStorage.getItem("acoesMod") || "{}"),
   );
 
-  const toggleLike = (idDenuncia) => {
-    setLikes((prev) => ({ ...prev, [idDenuncia]: !prev[idDenuncia] }));
-  };
+  // MOCK: Estado local para gerenciar as curtidas enquanto a API está offline
+  const [apoiosMock, setApoiosMock] = useState({});
 
-  const salvarNotaComunidade = async (idDenuncia) => {
-    const textoNota = notasInput[idDenuncia];
-    if (!textoNota || textoNota.trim() === "") {
-      toast.error("Escreva alguma nota antes de salvar!");
+  // Recebe também a quantidadeAtual para o mock saber de onde começar a somar
+  const toggleLike = async (idDenuncia, quantidadeAtual) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Você precisa estar logado para apoiar uma ocorrência.");
       return;
     }
 
-    const token = localStorage.getItem("token");
+    // --- INÍCIO DO MOCK ---
+    console.log(`[MOCK] Simulando POST para /denuncias/${idDenuncia}/apoiar`);
 
-    try {
-      
-      const resposta = await fetch(
-        `${API_URL}/denuncias/${idDenuncia}/nota`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ notaComunidade: textoNota }),
+    setApoiosMock((prev) => {
+      // Verifica se o usuário já curtiu essa denúncia no nosso mock
+      const estadoAtual = prev[idDenuncia] || {
+        total: quantidadeAtual,
+        curtiu: false,
+      };
+
+      // Simula o toggle (curtir / descurtir)
+      return {
+        ...prev,
+        [idDenuncia]: {
+          total: estadoAtual.curtiu
+            ? estadoAtual.total - 1
+            : estadoAtual.total + 1,
+          curtiu: !estadoAtual.curtiu,
         },
-      );
+      };
+    });
+    // --- FIM DO MOCK ---
+
+    /* CÓDIGO ORIGINAL DA API (Comentado até a API voltar)
+    try {
+      const resposta = await fetch(`http://localhost:3001/denuncias/${idDenuncia}/apoiar`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
       if (resposta.ok) {
-        const novasAcoes = { ...acoesMod, [idDenuncia]: "CRIOU" };
-        setAcoesMod(novasAcoes);
-        localStorage.setItem("acoesMod", JSON.stringify(novasAcoes));
-
-        toast.success("Nota sugerida com sucesso!");
-        window.location.reload();
+        window.location.reload(); 
       } else {
-        toast.error("Erro ao adicionar nota.");
+        const erro = await resposta.json();
+        alert(erro.mensagem || 'Erro ao apoiar ocorrência.');
       }
     } catch (erro) {
-      console.error("Erro ao conectar com o servidor:", erro);
+      console.error('Erro ao conectar com o servidor:', erro);
     }
+    */
+  };
+
+  const salvarNotaComunidade = async (idDenuncia) => {
+    // Mantive o código original aqui, se quiser testar a nota, pode fazer o mesmo esquema de mock!
+    console.log(`[MOCK] Simulando salvar nota para ${idDenuncia}`);
+    alert("Mock: Nota salva com sucesso!");
   };
 
   const validarNota = async (idDenuncia) => {
-    const token = localStorage.getItem("token");
-
-    try {
-   
-      const resposta = await fetch(
-        `${API_URL}/denuncias/${idDenuncia}/nota/validar`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (resposta.ok) {
-        const novasAcoes = { ...acoesMod, [idDenuncia]: "VOTOU" };
-        setAcoesMod(novasAcoes);
-        localStorage.setItem("acoesMod", JSON.stringify(novasAcoes));
-
-        toast.success("Voto computado!");
-        window.location.reload();
-      } else {
-        toast.error("Erro ao validar nota.");
-      }
-    } catch (erro) {
-      console.error("Erro ao conectar com o servidor:", erro);
-    }
+    console.log(`[MOCK] Simulando validar nota para ${idDenuncia}`);
+    alert("Mock: Voto computado com sucesso!");
   };
 
   return {
     ehModerador,
     notasInput,
     setNotasInput,
-    likes,
     toggleLike,
     acoesMod,
     salvarNotaComunidade,
     validarNota,
+    apoiosMock,
   };
 }
