@@ -12,20 +12,24 @@ export function ReportCard({ denuncia: d, hooks }) {
     ehModerador,
     notasInput,
     setNotasInput,
-    likes,
     toggleLike,
     acoesMod,
     salvarNotaComunidade,
     validarNota,
+    apoiosMock, // <-- Importando o mock
   } = hooks;
 
   const mostraNota =
     d.notaComunidade && (d.notaStatus === "APROVADA" || ehModerador);
   const jaInteragiu = acoesMod[d.id] === "CRIOU" || acoesMod[d.id] === "VOTOU";
   const campoData = d.dataCriacao || d.criadoEm;
-  
-  
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
+  // LÓGICA DO MOCK PARA A TELA:
+  const baseApoios = d.apoios || 0;
+  // Se existir um mock para este card, usamos o total dele, senão usamos a base do banco
+  const qtdApoios =
+    apoiosMock[d.id] !== undefined ? apoiosMock[d.id].total : baseApoios;
+  const usuarioCurtiuNoMock = apoiosMock[d.id]?.curtiu || false;
 
   return (
     <div className="w-full bg-zinc-900 p-4 rounded-xl border border-zinc-800 shadow-md flex flex-col gap-3">
@@ -61,8 +65,7 @@ export function ReportCard({ denuncia: d, hooks }) {
       {/* IMAGEM E DESCRIÇÃO */}
       {d.fotoUrl && (
         <img
-          // 2️⃣ TROCAMOS O LOCALHOST PELA VARIÁVEL AQUI:
-          src={d.fotoUrl.startsWith('http') ? d.fotoUrl : `${API_URL}${d.fotoUrl}`}
+          src={`http://localhost:3001${d.fotoUrl}`}
           alt="Ocorrência"
           className="w-full h-48 object-cover rounded-xl border border-zinc-800"
         />
@@ -72,13 +75,17 @@ export function ReportCard({ denuncia: d, hooks }) {
       {/* APOIAR */}
       <div className="flex items-center gap-4 border-t border-zinc-800/50 pt-2 mt-1">
         <button
-          onClick={() => toggleLike(d.id)}
-          className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${likes[d.id] ? "text-red-500" : "text-zinc-500 hover:text-zinc-300"}`}
+          onClick={() => toggleLike(d.id, baseApoios)} // Passamos a base para o mock saber somar
+          className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
+            usuarioCurtiuNoMock
+              ? "text-red-500"
+              : "text-zinc-500 hover:text-red-500"
+          }`}
         >
-          <ThumbsUp
-            className={`w-4 h-4 ${likes[d.id] ? "fill-red-500" : ""}`}
-          />
-          {likes[d.id] ? "Apoiado" : "Apoiar ocorrência"}
+          <ThumbsUp className="w-4 h-4" />
+          <span>
+            {qtdApoios} {qtdApoios === 1 ? "Apoio" : "Apoios"}
+          </span>
         </button>
       </div>
 
