@@ -9,6 +9,10 @@ import {
 } from "lucide-react";
 import { ModalComentarios } from "./ModalComentarios";
 
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? "https://voxcity-backend.onrender.com" 
+  : "http://localhost:3001";
+
 export function ReportCard({ denuncia: d, hooks }) {
   const {
     ehModerador,
@@ -61,15 +65,18 @@ export function ReportCard({ denuncia: d, hooks }) {
           </div>
         </div>
 
-        {/* IMAGEM E DESCRIÇÃO */}
+      {/* IMAGEM E DESCRIÇÃO */}
         {d.fotoUrl && (
           <img
-            src={`http://localhost:3001${d.fotoUrl}`}
+            src={
+              d.fotoUrl.startsWith("http")
+                ? d.fotoUrl
+                : `${API_URL}${d.fotoUrl.startsWith("/") ? "" : "/"}${d.fotoUrl}`
+            }
             alt="Ocorrência"
             className="w-full h-48 object-cover rounded-xl border border-zinc-800"
           />
         )}
-        <p className="text-zinc-100 text-sm">{d.descricao}</p>
 
         {/* BARRA DE AÇÕES */}
         <div className="flex items-center gap-6 border-t border-zinc-800/50 pt-3 mt-1">

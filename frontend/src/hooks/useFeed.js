@@ -1,5 +1,9 @@
 import { useState } from "react";
 
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? "https://voxcity-backend.onrender.com" 
+  : "http://localhost:3001";
+
 export function useFeed() {
   const usuarioLogado = JSON.parse(localStorage.getItem("usuario") || "{}");
   const ehModerador = usuarioLogado.role === "MODERADOR";
@@ -19,7 +23,7 @@ export function useFeed() {
 
     try {
       const resposta = await fetch(
-        `http://localhost:3001/denuncias/${idDenuncia}/apoiar`,
+        `${API_URL}/denuncias/${idDenuncia}/apoiar`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -48,7 +52,7 @@ export function useFeed() {
 
     try {
       const resposta = await fetch(
-        `http://localhost:3001/denuncias/${idDenuncia}/nota`,
+        `${API_URL}/denuncias/${idDenuncia}/nota`,
         {
           method: "PATCH",
           headers: {
@@ -79,7 +83,7 @@ export function useFeed() {
 
     try {
       const resposta = await fetch(
-        `http://localhost:3001/denuncias/${idDenuncia}/nota/validar`,
+        `${API_URL}/denuncias/${idDenuncia}/nota/validar`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },

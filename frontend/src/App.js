@@ -8,6 +8,10 @@ import { Perfil } from "./components/Perfil";
 import { Notificacoes } from "./components/Notificacoes";
 import { Mapa } from "./components/Mapa";
 
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? "https://voxcity-backend.onrender.com" 
+  : "http://localhost:3001";
+
 function App() {
   const [usuario, setUsuario] = useState(null);
   const [pagina, setPagina] = useState("feed");
@@ -20,7 +24,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:3001/denuncias")
+    fetch(`${API_URL}/denuncias`)
       .then((res) => res.json())
       .then((data) => setDenuncias(data))
       .catch((err) => console.error("Erro ao buscar:", err));
