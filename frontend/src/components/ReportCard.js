@@ -77,6 +77,9 @@ export function ReportCard({ denuncia: d, hooks }) {
             className="w-full h-48 object-cover rounded-xl border border-zinc-800"
           />
         )}
+        
+        {}
+        <p className="text-zinc-100 text-sm">{d.descricao}</p>
 
         {/* BARRA DE AÇÕES */}
         <div className="flex items-center gap-6 border-t border-zinc-800/50 pt-3 mt-1">
@@ -91,7 +94,7 @@ export function ReportCard({ denuncia: d, hooks }) {
             </span>
           </button>
 
-          {/* Botão de Comentar mantido intacto */}
+          {/* Botão de Comentar */}
           <button
             onClick={() => setIsModalAberto(true)}
             className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 hover:text-zinc-300 transition-colors"

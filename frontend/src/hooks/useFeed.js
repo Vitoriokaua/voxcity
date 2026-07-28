@@ -85,7 +85,7 @@ export function useFeed() {
       const resposta = await fetch(
         `${API_URL}/denuncias/${idDenuncia}/nota/validar`,
         {
-          method: "POST",
+          method: "PATCH",
           headers: { Authorization: `Bearer ${token}` },
         },
       );
