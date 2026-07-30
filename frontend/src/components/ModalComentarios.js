@@ -1,47 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Send, User } from "lucide-react";
+import toast from "react-hot-toast";
+
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? "https://voxcity-backend.onrender.com" 
+  : "http://localhost:3001";
 
 export function ModalComentarios({ fecharModal, denunciaId }) {
-  // MOCK DE COMENTÁRIOS: Simulando o que viria do banco de dados
-  const [comentarios, setComentarios] = useState([
-    {
-      id: 1,
-      usuario: "Maria Silva",
-      texto: "Isso é um absurdo! A prefeitura precisa arrumar logo.",
-      criadoEm: new Date().toISOString(),
-    },
-    {
-      id: 2,
-      usuario: "João Pedro",
-      texto: "Passei aí ontem e quase quebrei o pneu da moto.",
-      criadoEm: new Date(Date.now() - 3600000).toISOString(),
-    },
-  ]);
-
+  const [comentarios, setComentarios] = useState([]);
   const [novoComentario, setNovoComentario] = useState("");
+  const [carregando, setCarregando] = useState(true);
 
-  const enviarComentario = (e) => {
+  useEffect(() => {
+    const buscarComentarios = async () => {
+      try {
+        const res = await fetch(`${API_URL}/denuncias/${denunciaId}/comentarios`);
+        if (res.ok) {
+          const data = await res.json();
+          setComentarios(data);
+        }
+      } catch (error) {
+        toast.error("Erro ao carregar comentários.");
+      } finally {
+        setCarregando(false);
+      }
+    };
+
+    buscarComentarios();
+  }, [denunciaId]);
+
+  const enviarComentario = async (e) => {
     e.preventDefault();
     if (!novoComentario.trim()) return;
 
-    // Adiciona o comentário falso na tela (MOCK)
-    const comentarioCriado = {
-      id: Date.now(),
-      usuario: "Você",
-      texto: novoComentario,
-      criadoEm: new Date().toISOString(),
-    };
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Você precisa estar logado para comentar.");
+      return;
+    }
 
-    setComentarios([...comentarios, comentarioCriado]);
-    setNovoComentario("");
+    try {
+      const res = await fetch(`${API_URL}/denuncias/${denunciaId}/comentarios`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ texto: novoComentario })
+      });
+
+      if (res.ok) {
+        const comentarioCriado = await res.json();
+        setComentarios([...comentarios, comentarioCriado]);
+        setNovoComentario("");
+      } else {
+        const erro = await res.json();
+        toast.error(erro.erro || "Erro ao enviar comentário.");
+      }
+    } catch (error) {
+      toast.error("Erro de conexão.");
+    }
   };
 
   return (
-    // Fundo escuro (Overlay)
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex justify-center items-end sm:items-center p-4">
-      {/* Janela do Modal */}
       <div className="bg-zinc-900 w-full max-w-md rounded-3xl border border-zinc-800 shadow-2xl flex flex-col h-[70vh] sm:h-[60vh] animate-in slide-in-from-bottom-10 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300">
-        {/* CABEÇALHO DO MODAL */}
         <div className="flex justify-between items-center p-5 border-b border-zinc-800">
           <h2 className="text-zinc-100 font-bold text-lg">Comentários</h2>
           <button
@@ -52,9 +75,10 @@ export function ModalComentarios({ fecharModal, denunciaId }) {
           </button>
         </div>
 
-        {/* LISTA DE COMENTÁRIOS (Scrollável) */}
         <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
-          {comentarios.length === 0 ? (
+          {carregando ? (
+            <p className="text-center text-zinc-500 text-sm mt-4">Carregando comentários...</p>
+          ) : comentarios.length === 0 ? (
             <p className="text-center text-zinc-500 text-sm mt-4">
               Nenhum comentário ainda. Seja o primeiro a comentar!
             </p>
@@ -68,7 +92,7 @@ export function ModalComentarios({ fecharModal, denunciaId }) {
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4 text-zinc-600" />
                     <span className="text-xs font-bold text-zinc-300">
-                      {com.usuario}
+                      {com.usuario?.nome || "Usuário apagado"}
                     </span>
                   </div>
                   <span className="text-[10px] text-zinc-600 font-mono">
@@ -86,7 +110,6 @@ export function ModalComentarios({ fecharModal, denunciaId }) {
           )}
         </div>
 
-        {/* ÁREA DE DIGITAÇÃO */}
         <form
           onSubmit={enviarComentario}
           className="p-4 border-t border-zinc-800 bg-zinc-950/50 rounded-b-3xl flex gap-2"
