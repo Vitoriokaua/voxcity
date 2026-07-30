@@ -25,6 +25,11 @@ export const findAll = async () => {
           nome: true,
         },
       },
+      apoiosDe: {
+        select: {
+          usuarioId: true,
+        },
+      },
     },
   });
 };

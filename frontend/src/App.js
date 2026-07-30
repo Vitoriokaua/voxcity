@@ -7,6 +7,7 @@ import TelaLogin from "./components/TelaLogin";
 import { Perfil } from "./components/Perfil";
 import { Notificacoes } from "./components/Notificacoes";
 import { Mapa } from "./components/Mapa";
+import { useBusca } from "./components/useBusca";
 
 const API_URL = process.env.NODE_ENV === 'production' 
   ? "https://voxcity-backend.onrender.com" 
@@ -15,8 +16,9 @@ const API_URL = process.env.NODE_ENV === 'production'
 function App() {
   const [usuario, setUsuario] = useState(null);
   const [pagina, setPagina] = useState("feed");
-
   const [denuncias, setDenuncias] = useState([]);
+
+  const { termoBusca, setTermoBusca, denunciasFiltradas } = useBusca(denuncias);
 
   useEffect(() => {
     const salvo = localStorage.getItem("usuario");
@@ -29,6 +31,16 @@ function App() {
       .then((data) => setDenuncias(data))
       .catch((err) => console.error("Erro ao buscar:", err));
   }, []);
+
+  const irParaDenuncia = (id) => {
+    setPagina("feed");
+    setTimeout(() => {
+      const elemento = document.getElementById(`denuncia-${id}`);
+      if (elemento) {
+        elemento.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 150);
+  };
 
   if (pagina === "login") {
     return (
@@ -46,10 +58,15 @@ function App() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans pb-24 relative">
-      <Header usuario={usuario} setPagina={setPagina} />
+      <Header 
+        usuario={usuario} 
+        setPagina={setPagina} 
+        termoBusca={termoBusca} 
+        setTermoBusca={setTermoBusca} 
+      />
 
       <main className="flex flex-col items-center justify-start min-h-[70vh] p-4 max-w-md mx-auto">
-        {pagina === "feed" && <Feed denuncias={denuncias} setDenuncias={setDenuncias} />}
+        {pagina === "feed" && <Feed denuncias={denunciasFiltradas} setDenuncias={setDenuncias} />}
 
         {pagina === "form" && (
           <div className="w-full flex justify-center mt-10">
@@ -57,7 +74,7 @@ function App() {
           </div>
         )}
 
-        {pagina === "mapa" && <Mapa denuncias={denuncias} />}
+        {pagina === "mapa" && <Mapa denuncias={denuncias} irParaDenuncia={irParaDenuncia} />}
         {pagina === "notificacoes" && <Notificacoes />}
         {pagina === "perfil" && <Perfil />}
       </main>

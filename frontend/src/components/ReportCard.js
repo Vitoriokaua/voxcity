@@ -25,18 +25,21 @@ export function ReportCard({ denuncia: d, hooks }) {
   } = hooks;
 
   const [isModalAberto, setIsModalAberto] = useState(false);
+  const usuarioLogado = JSON.parse(localStorage.getItem("usuario") || "{}");
 
   const mostraNota =
     d.notaComunidade && (d.notaStatus === "APROVADA" || ehModerador);
   const jaInteragiu = acoesMod[d.id] === "CRIOU" || acoesMod[d.id] === "VOTOU";
   const campoData = d.dataCriacao || d.criadoEm;
-
   const qtdApoios = d.apoios || 0;
+
+  const jaCurtiu = d.curtiu !== undefined 
+    ? d.curtiu 
+    : d.apoiosDe?.some((apoio) => apoio.usuarioId === usuarioLogado.id);
 
   return (
     <>
-      <div className="w-full bg-zinc-900 p-4 rounded-xl border border-zinc-800 shadow-md flex flex-col gap-3">
-        {/* CABEÇALHO */}
+      <div id={`denuncia-${d.id}`} className="w-full bg-zinc-900 p-4 rounded-xl border border-zinc-800 shadow-md flex flex-col gap-3">
         <div>
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2 text-zinc-400">
@@ -65,7 +68,6 @@ export function ReportCard({ denuncia: d, hooks }) {
           </div>
         </div>
 
-      {/* IMAGEM E DESCRIÇÃO */}
         {d.fotoUrl && (
           <img
             src={
@@ -80,27 +82,24 @@ export function ReportCard({ denuncia: d, hooks }) {
         
         <p className="text-zinc-100 text-sm">{d.descricao}</p>
 
-        {/* BARRA DE AÇÕES */}
         <div className="flex items-center gap-6 border-t border-zinc-800/50 pt-3 mt-1">
-          {/* Botão de Apoiar conectado ao Back-end real e reativo */}
           <button
             onClick={() => toggleLike(d.id)}
             className={`flex items-center gap-1.5 text-xs font-bold transition-colors ${
-              d.curtiu 
+              jaCurtiu 
                 ? "text-red-500 hover:text-red-400" 
                 : "text-zinc-500 hover:text-red-400"
             }`}
           >
             <ThumbsUp 
               className="w-4 h-4" 
-              fill={d.curtiu ? "currentColor" : "none"} 
+              fill={jaCurtiu ? "currentColor" : "none"} 
             />
             <span>
               {qtdApoios} {qtdApoios === 1 ? "Apoio" : "Apoios"}
             </span>
           </button>
 
-          {/* Botão de Comentar mantido intacto */}
           <button
             onClick={() => setIsModalAberto(true)}
             className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 hover:text-zinc-300 transition-colors"
@@ -110,7 +109,6 @@ export function ReportCard({ denuncia: d, hooks }) {
           </button>
         </div>
 
-        {/* NOTA DA COMUNIDADE */}
         {mostraNota && (
           <div
             className={`p-3 rounded-xl flex gap-3 items-start mt-2 border ${d.notaStatus === "APROVADA" ? "bg-amber-950/40 border-amber-800" : "bg-blue-950/40 border-blue-800"}`}
@@ -143,7 +141,6 @@ export function ReportCard({ denuncia: d, hooks }) {
           </div>
         )}
 
-        {/* FERRAMENTAS MODERADOR */}
         {ehModerador && !d.notaComunidade && !jaInteragiu && (
           <div className="border-t border-zinc-800 pt-3 mt-2 flex flex-col gap-2">
             <span className="text-red-400 text-[10px] font-bold uppercase tracking-wider">
