@@ -51,7 +51,7 @@ Abra um terminal, certifique-se de estar na pasta raiz do projeto e siga os pass
 3.5. Configure e sincronize o banco de dados local:
    npx prisma db push
 4. Inicie o servidor em modo de desenvolvimento (com auto-recarregamento):
-   npx tsx watch src/server.ts
+  c
 
 
 
