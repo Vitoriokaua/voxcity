@@ -9,6 +9,9 @@ const router = Router();
 
 router.post('/', verificarToken, uploadCloudinary.single('foto'), denunciaController.createDenuncia);
 router.get('/', denunciaController.getDenuncias);
+router.get('/minhas', verificarToken, denunciaController.getMinhasDenuncias);
+router.patch('/:id', verificarToken, denunciaController.updateDenuncia);
+router.delete('/:id', verificarToken, denunciaController.deleteDenuncia);
 router.patch('/:id/nota', verificarToken, apenasModerador, denunciaController.addNotaComunidade);
 router.patch('/:id/nota/validar', verificarToken, apenasModerador, denunciaController.validarNotaComunidade);
 router.use('/:id/apoiar', upvoteRoutes);

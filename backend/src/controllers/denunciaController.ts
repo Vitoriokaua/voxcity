@@ -1,14 +1,8 @@
 import type { Request, Response } from 'express';
 import * as denunciaService from '../services/denunciaService.js';
 
-/**
- * @description Cria uma nova denúncia
- * @route POST /api/denuncias
- */
 export const createDenuncia = async (req: Request, res: Response) => {
   const { descricao, latitude, longitude, endereco, anonimo } = req.body;
-  
-  // UNICA ALTERAÇÃO: Agora pegamos a URL direta do Cloudinary que vem no req.file.path
   const fotoUrl = req.file ? req.file.path : null;
   const isAnonimo = anonimo === 'true';
 
@@ -20,37 +14,72 @@ export const createDenuncia = async (req: Request, res: Response) => {
       endereco,
       fotoUrl,
       anonimo: isAnonimo,
-      // @ts-ignore - A propriedade `usuario` é adicionada pelo middleware
-      usuarioId: req.usuario?.id,
+      usuarioId: (req as any).usuario?.id,
     };
 
     const novaDenuncia = await denunciaService.create(denunciaData);
     res.status(201).json(novaDenuncia);
   } catch (error) {
-    console.error("Erro no controller ao criar denúncia:", error);
     res.status(500).json({ erro: "Erro interno ao criar denúncia." });
   }
 };
-
-/**
- * @description Busca todas as denúncias
- * @route GET /api/denuncias
- */
 
 export const getDenuncias = async (req: Request, res: Response) => {
   try {
     const denuncias = await denunciaService.findAll();
     res.json(denuncias);
   } catch (error) {
-    console.error("Erro no controller ao buscar denúncias:", error);
     res.status(500).json({ erro: "Erro interno ao buscar denúncias." });
   }
 };
 
-/**
- * @description Adiciona uma nota da comunidade a uma denúncia
- * @route PATCH /api/denuncias/:id/nota
- */
+export const getMinhasDenuncias = async (req: Request, res: Response) => {
+  try {
+    const usuarioId = (req as any).usuario?.id;
+    if (!usuarioId) {
+      return res.status(401).json({ erro: "Usuário não autenticado." });
+    }
+    const denuncias = await denunciaService.findMyDenuncias(usuarioId);
+    res.json(denuncias);
+  } catch (error) {
+    res.status(500).json({ erro: "Erro ao buscar suas denúncias." });
+  }
+};
+
+export const updateDenuncia = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { descricao } = req.body;
+    const usuarioId = (req as any).usuario?.id;
+
+    if (!descricao || descricao.trim() === "") {
+      return res.status(400).json({ erro: "A descrição é obrigatória." });
+    }
+
+    const denunciaAtualizada = await denunciaService.updateDenuncia(String(id), usuarioId, descricao);
+    res.json(denunciaAtualizada);
+  } catch (error: any) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ erro: error.message });
+    }
+    res.status(500).json({ erro: "Erro ao atualizar denúncia." });
+  }
+};
+
+export const deleteDenuncia = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const usuarioId = (req as any).usuario?.id;
+
+    await denunciaService.deleteDenuncia(String(id), usuarioId);
+    res.json({ mensagem: "Denúncia removida com sucesso." });
+  } catch (error: any) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ erro: error.message });
+    }
+    res.status(500).json({ erro: "Erro ao excluir denúncia." });
+  }
+};
 
 export const addNotaComunidade = async (req: Request, res: Response) => {
   try {
@@ -62,10 +91,8 @@ export const addNotaComunidade = async (req: Request, res: Response) => {
     }
 
     const denunciaAtualizada = await denunciaService.addCommunityNote(String(id), notaComunidade);
-
     res.json(denunciaAtualizada);
   } catch (error: any) {
-    console.error("Erro no controller ao adicionar nota:", error);
     if (error.statusCode === 404) {
       return res.status(404).json({ erro: error.message });
     }
@@ -73,19 +100,12 @@ export const addNotaComunidade = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * @description Valida uma nota da comunidade
- * @route POST /api/denuncias/:id/nota/validar
- */
 export const validarNotaComunidade = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-
     const denunciaAtualizada = await denunciaService.validateCommunityNote(String(id));
-
     res.json(denunciaAtualizada);
   } catch (error: any) {
-    console.error("Erro no controller ao validar nota:", error);
     if (error.statusCode === 404) {
       return res.status(404).json({ erro: error.message });
     }
