@@ -3,8 +3,8 @@ import { MapPin } from "lucide-react";
 import { useFeed } from "../hooks/useFeed";
 import { ReportCard } from "./ReportCard";
 
-export function Feed({ denuncias }) {
-  const feedHooks = useFeed();
+export function Feed({ denuncias, setDenuncias }) {
+  const feedHooks = useFeed(setDenuncias);
 
   if (denuncias.length === 0) {
     return (

@@ -1,20 +1,38 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export class ApoioDuplicadoError extends Error {
-  statusCode = 409;
-  constructor() {
-    super('Você já apoiou esta denúncia.');
-  }
-}
+export const toggleApoio = async (denunciaId: string, usuarioId: string) => {
+  // 1. Verifica se o usuário já apoiou essa denúncia
+  const apoioExistente = await prisma.apoio.findUnique({
+    where: {
+      usuarioId_denunciaId: {
+        usuarioId,
+        denunciaId,
+      },
+    },
+  });
 
-/**
- * Registra o apoio de um usuário a uma denúncia e incrementa o contador,
- * garantindo no máximo um apoio por usuário/denúncia.
- */
-export const apoiar = async (denunciaId: string, usuarioId: string) => {
-  try {
+  if (apoioExistente) {
+
+    const [, denunciaAtualizada] = await prisma.$transaction([
+      prisma.apoio.delete({
+        where: { id: apoioExistente.id },
+      }),
+      prisma.denuncia.update({
+        where: { id: denunciaId },
+        data: { apoios: { decrement: 1 } },
+        include: {
+          usuario: {
+            select: { nome: true },
+          },
+        },
+      }),
+    ]);
+
+    return { denunciaAtualizada, curtiu: false };
+  } else {
+    // 3. Se NÃO EXISTE, criamos o apoio e somamos 1 no contador
     const [, denunciaAtualizada] = await prisma.$transaction([
       prisma.apoio.create({
         data: { denunciaId, usuarioId },
@@ -30,11 +48,6 @@ export const apoiar = async (denunciaId: string, usuarioId: string) => {
       }),
     ]);
 
-    return denunciaAtualizada;
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      throw new ApoioDuplicadoError();
-    }
-    throw error;
+    return { denunciaAtualizada, curtiu: true };
   }
 };

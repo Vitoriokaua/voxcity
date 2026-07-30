@@ -1,10 +1,11 @@
 import { useState } from "react";
-
+import toast from "react-hot-toast"; 
 const API_URL = process.env.NODE_ENV === 'production' 
   ? "https://voxcity-backend.onrender.com" 
   : "http://localhost:3001";
 
-export function useFeed() {
+
+export function useFeed(setDenuncias) {
   const usuarioLogado = JSON.parse(localStorage.getItem("usuario") || "{}");
   const ehModerador = usuarioLogado.role === "MODERADOR";
 
@@ -17,7 +18,7 @@ export function useFeed() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Você precisa estar logado para apoiar uma ocorrência.");
+      toast.error("Você precisa estar logado para apoiar uma ocorrência.");
       return;
     }
 
@@ -31,20 +32,34 @@ export function useFeed() {
       );
 
       if (resposta.ok) {
-        window.location.reload();
+        const dados = await resposta.json();
+        
+        // Atualiza SÓ a denúncia que recebeu/perdeu o like no estado do React
+        setDenuncias((prev) => 
+          prev.map((d) => 
+            d.id === idDenuncia 
+              ? { ...d, apoios: dados.denunciaAtualizada.apoios, curtiu: dados.curtiu } 
+              : d
+          )
+        );
+
+        if (dados.curtiu) {
+           toast.success("Apoio registrado!");
+        }
       } else {
         const erro = await resposta.json();
-        alert(erro.mensagem || "Erro ao apoiar ocorrência.");
+        toast.error(erro.erro || "Erro ao apoiar ocorrência.");
       }
     } catch (erro) {
       console.error("Erro ao conectar com o servidor:", erro);
+      toast.error("Erro de conexão.");
     }
   };
 
   const salvarNotaComunidade = async (idDenuncia) => {
     const textoNota = notasInput[idDenuncia];
     if (!textoNota || textoNota.trim() === "") {
-      alert("Escreva alguma nota antes de salvar!");
+      toast.error("Escreva alguma nota antes de salvar!");
       return;
     }
 
@@ -68,10 +83,10 @@ export function useFeed() {
         setAcoesMod(novasAcoes);
         localStorage.setItem("acoesMod", JSON.stringify(novasAcoes));
 
-        alert("Nota sugerida com sucesso!");
-        window.location.reload();
+        toast.success("Nota sugerida com sucesso!");
+        setTimeout(() => window.location.reload(), 1500); // Reload suave só pra notas
       } else {
-        alert("Erro ao adicionar nota.");
+        toast.error("Erro ao adicionar nota.");
       }
     } catch (erro) {
       console.error("Erro ao conectar com o servidor:", erro);
@@ -95,10 +110,10 @@ export function useFeed() {
         setAcoesMod(novasAcoes);
         localStorage.setItem("acoesMod", JSON.stringify(novasAcoes));
 
-        alert("Voto computado!");
-        window.location.reload();
+        toast.success("Voto computado!");
+        setTimeout(() => window.location.reload(), 1500); // Reload suave só pra notas
       } else {
-        alert("Erro ao validar nota.");
+        toast.error("Erro ao validar nota.");
       }
     } catch (erro) {
       console.error("Erro ao conectar com o servidor:", erro);

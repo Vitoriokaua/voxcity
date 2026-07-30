@@ -49,7 +49,7 @@ function App() {
       <Header usuario={usuario} setPagina={setPagina} />
 
       <main className="flex flex-col items-center justify-start min-h-[70vh] p-4 max-w-md mx-auto">
-        {pagina === "feed" && <Feed denuncias={denuncias} />}
+        {pagina === "feed" && <Feed denuncias={denuncias} setDenuncias={setDenuncias} />}
 
         {pagina === "form" && (
           <div className="w-full flex justify-center mt-10">

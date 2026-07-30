@@ -78,23 +78,29 @@ export function ReportCard({ denuncia: d, hooks }) {
           />
         )}
         
-        {}
         <p className="text-zinc-100 text-sm">{d.descricao}</p>
 
         {/* BARRA DE AÇÕES */}
         <div className="flex items-center gap-6 border-t border-zinc-800/50 pt-3 mt-1">
-          {/* Botão de Apoiar conectado ao Back-end real */}
+          {/* Botão de Apoiar conectado ao Back-end real e reativo */}
           <button
             onClick={() => toggleLike(d.id)}
-            className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 hover:text-red-400 transition-colors"
+            className={`flex items-center gap-1.5 text-xs font-bold transition-colors ${
+              d.curtiu 
+                ? "text-red-500 hover:text-red-400" 
+                : "text-zinc-500 hover:text-red-400"
+            }`}
           >
-            <ThumbsUp className="w-4 h-4" />
+            <ThumbsUp 
+              className="w-4 h-4" 
+              fill={d.curtiu ? "currentColor" : "none"} 
+            />
             <span>
               {qtdApoios} {qtdApoios === 1 ? "Apoio" : "Apoios"}
             </span>
           </button>
 
-          {/* Botão de Comentar */}
+          {/* Botão de Comentar mantido intacto */}
           <button
             onClick={() => setIsModalAberto(true)}
             className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 hover:text-zinc-300 transition-colors"
