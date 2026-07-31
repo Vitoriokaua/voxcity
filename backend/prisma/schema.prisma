@@ -3,59 +3,50 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb" 
   url      = env("DATABASE_URL")
 }
 
 model Usuario {
-  id        String     @id @default(uuid())
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
   nome      String
   email     String     @unique
   senha     String
   role      String     @default("CIDADAO")
-  apoios    Apoio[]
-  denuncias Denuncia[]
-  comentarios Comentario[]
+  denuncias Denuncia[] @relation("UsuarioDenuncias")
 }
 
 model Denuncia {
-  id             String   @id @default(uuid())
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
   descricao      String
   latitude       Float?
   longitude      Float?
-  imagemUrl      String?
   fotoUrl        String?
   endereco       String?
-  apoios         Int      @default(0)
+  anonimo        Boolean  @default(false)
   iaSinalizada   Boolean  @default(false)
   criadoEm       DateTime @default(now())
-  usuarioId      String?
-  anonimo        Boolean  @default(false)
   notaComunidade String?
   notaStatus     String   @default("PENDENTE")
   votosMod       Int      @default(0)
-  apoiosDe       Apoio[]
-  comentarios Comentario[]
-  usuario        Usuario? @relation(fields: [usuarioId], references: [id])
+
+  // O autor da denúncia
+  usuarioId      String?  @db.ObjectId
+  usuario        Usuario? @relation("UsuarioDenuncias", fields: [usuarioId], references: [id])
+
+
+  apoios         Int      @default(0)
+
+
+  apoiadoresIds  String[] @db.ObjectId
+
+  comentarios    Comentario[]
 }
 
-model Apoio {
-  id         String   @id @default(uuid())
-  usuarioId  String
-  denunciaId String
-  criadoEm   DateTime @default(now())
-  denuncia   Denuncia @relation(fields: [denunciaId], references: [id])
-  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
-
-  @@unique([usuarioId, denunciaId])
-}
-
-model Comentario {
-  id          String    @id @default(uuid())
-  texto       String
-  criadoEm DateTime @default(now())
-  usuarioId   String
-  denunciaId  String
-  usuario      Usuario   @relation(fields: [usuarioId], references: [id])
-  denuncia     Denuncia  @relation(fields: [denunciaId], references: [id])
+// Tipo composto (Embutido) exclusivo do Prisma com MongoDB
+type Comentario {
+  id        String   @default(uuid())
+  texto     String
+  criadoEm  DateTime @default(now())
+  usuarioId String   @db.ObjectId
 }
