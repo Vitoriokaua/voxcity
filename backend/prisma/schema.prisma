@@ -3,50 +3,59 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb" 
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Usuario {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  id        String     @id @default(uuid())
   nome      String
   email     String     @unique
   senha     String
   role      String     @default("CIDADAO")
-  denuncias Denuncia[] @relation("UsuarioDenuncias")
+  apoios    Apoio[]
+  denuncias Denuncia[]
+  comentarios Comentario[]
 }
 
 model Denuncia {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  id             String   @id @default(uuid())
   descricao      String
   latitude       Float?
   longitude      Float?
+  imagemUrl      String?
   fotoUrl        String?
   endereco       String?
-  anonimo        Boolean  @default(false)
+  apoios         Int      @default(0)
   iaSinalizada   Boolean  @default(false)
   criadoEm       DateTime @default(now())
+  usuarioId      String?
+  anonimo        Boolean  @default(false)
   notaComunidade String?
   notaStatus     String   @default("PENDENTE")
   votosMod       Int      @default(0)
-
-  // O autor da denúncia
-  usuarioId      String?  @db.ObjectId
-  usuario        Usuario? @relation("UsuarioDenuncias", fields: [usuarioId], references: [id])
-
-
-  apoios         Int      @default(0)
-
-
-  apoiadoresIds  String[] @db.ObjectId
-
-  comentarios    Comentario[]
+  apoiosDe       Apoio[]
+  comentarios Comentario[]
+  usuario        Usuario? @relation(fields: [usuarioId], references: [id])
 }
 
-// Tipo composto (Embutido) exclusivo do Prisma com MongoDB
-type Comentario {
-  id        String   @default(uuid())
-  texto     String
-  criadoEm  DateTime @default(now())
-  usuarioId String   @db.ObjectId
+model Apoio {
+  id         String   @id @default(uuid())
+  usuarioId  String
+  denunciaId String
+  criadoEm   DateTime @default(now())
+  denuncia   Denuncia @relation(fields: [denunciaId], references: [id])
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+
+  @@unique([usuarioId, denunciaId])
+}
+
+model Comentario {
+  id          String    @id @default(uuid())
+  texto       String
+  criadoEm DateTime @default(now())
+  usuarioId   String
+  denunciaId  String
+  usuario      Usuario   @relation(fields: [usuarioId], references: [id])
+  denuncia     Denuncia  @relation(fields: [denunciaId], references: [id])
 }
