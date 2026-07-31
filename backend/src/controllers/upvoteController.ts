@@ -1,24 +1,28 @@
 import type { Request, Response } from 'express';
 import * as upvoteService from '../services/upvoteService.js';
-import { ApoioDuplicadoError } from '../services/upvoteService.js';
+
+/**
+ * @description Adiciona ou remove o apoio a uma denúncia (Toggle).
+ * @route POST /denuncias/:id/apoiar
+ */
 export const apoiarDenuncia = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-   const usuarioId = (req as any).usuario?.id;
+    // @ts-ignore
+    const usuarioId = req.usuario?.id;
 
-    const denunciaAtualizada = await upvoteService.apoiar(String(id), usuarioId);
-    res.json(denunciaAtualizada);
+    if (!usuarioId) {
+      return res.status(401).json({ erro: "Usuário não autenticado." });
+    }
+
+    const resultado = await upvoteService.toggleApoio(String(id), usuarioId);
+    res.json(resultado);
   } catch (error: any) {
-    if (error instanceof ApoioDuplicadoError) {
-      return res.status(error.statusCode).json({ erro: error.message });
+    console.error("Erro no controller ao processar apoio:", error);
+    // P2025: registro não encontrado / P2003: FK inválida (denúncia inexistente)
+    if (error.code === 'P2025' || error.code === 'P2003') {
+      return res.status(404).json({ erro: "Denúncia não encontrada." });
     }
-    
-  
-    if (error.message === 'Denúncia não encontrada.') {
-      return res.status(404).json({ erro: error.message });
-    }
-    
-    console.error("Erro no controller ao apoiar denúncia:", error);
-    res.status(500).json({ erro: "Erro interno ao apoiar denúncia." });
+    res.status(500).json({ erro: "Erro interno ao processar o apoio." });
   }
 };

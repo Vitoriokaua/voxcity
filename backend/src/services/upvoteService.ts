@@ -2,45 +2,52 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export class ApoioDuplicadoError extends Error {
-  statusCode = 409;
-  constructor() {
-    super('Você já apoiou esta denúncia.');
-  }
-}
-
-export const apoiar = async (denunciaId: string, usuarioId: string) => {
-  // 1. Busca a denúncia para ver se o usuário já está no array
-  const denuncia = await prisma.denuncia.findUnique({
-    where: { id: denunciaId },
-  });
-
-  if (!denuncia) {
-    throw new Error('Denúncia não encontrada.');
-  }
-
-  // 2. Verifica duplicidade (ApoioDuplicado)
-  if (denuncia.apoiadoresIds.includes(usuarioId)) {
-    throw new ApoioDuplicadoError();
-  }
-
-  // 3. Atualiza a denúncia: insere o ID no array E incrementa o contador
-  const denunciaAtualizada = await prisma.denuncia.update({
-    where: { id: denunciaId },
-    data: {
-      apoiadoresIds: {
-        push: usuarioId, 
-      },
-      apoios: {
-        increment: 1, // 
-      }
-    },
-    include: {
-      usuario: {
-        select: { nome: true },
+export const toggleApoio = async (denunciaId: string, usuarioId: string) => {
+  // 1. Verifica se o usuário já apoiou essa denúncia
+  const apoioExistente = await prisma.apoio.findUnique({
+    where: {
+      usuarioId_denunciaId: {
+        usuarioId,
+        denunciaId,
       },
     },
   });
 
-  return denunciaAtualizada;
+  if (apoioExistente) {
+
+    const [, denunciaAtualizada] = await prisma.$transaction([
+      prisma.apoio.delete({
+        where: { id: apoioExistente.id },
+      }),
+      prisma.denuncia.update({
+        where: { id: denunciaId },
+        data: { apoios: { decrement: 1 } },
+        include: {
+          usuario: {
+            select: { nome: true },
+          },
+        },
+      }),
+    ]);
+
+    return { denunciaAtualizada, curtiu: false };
+  } else {
+    // 3. Se NÃO EXISTE, criamos o apoio e somamos 1 no contador
+    const [, denunciaAtualizada] = await prisma.$transaction([
+      prisma.apoio.create({
+        data: { denunciaId, usuarioId },
+      }),
+      prisma.denuncia.update({
+        where: { id: denunciaId },
+        data: { apoios: { increment: 1 } },
+        include: {
+          usuario: {
+            select: { nome: true },
+          },
+        },
+      }),
+    ]);
+
+    return { denunciaAtualizada, curtiu: true };
+  }
 };
