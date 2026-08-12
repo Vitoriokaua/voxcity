@@ -6,5 +6,6 @@ const router = Router({ mergeParams: true });
 
 router.post('/', verificarToken, comentarioController.criarComentario);
 router.get('/', comentarioController.listarComentarios);
+router.delete('/:id', verificarToken, comentarioController.excluirComentario);
 
 export default router;

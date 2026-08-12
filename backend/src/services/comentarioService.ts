@@ -28,3 +28,9 @@ export const buscarPorDenuncia = async (denunciaId: string) => {
     },
   });
 };
+
+export const excluir = async (id: string) => {
+  return await prisma.comentario.delete({
+    where: { id }
+  });
+};

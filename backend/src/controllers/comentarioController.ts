@@ -27,3 +27,16 @@ export const listarComentarios = async (req: Request, res: Response) => {
     res.status(500).json({ erro: "Erro ao buscar comentários." });
   }
 };
+
+
+export const excluirComentario = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params; 
+  
+    await comentarioService.excluir(String(id));
+    
+    res.status(200).json({ mensagem: "Comentário excluído com sucesso." });
+  } catch (error) {
+    res.status(500).json({ erro: "Erro ao excluir o comentário." });
+  }
+};
