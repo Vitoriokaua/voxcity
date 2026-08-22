@@ -31,12 +31,20 @@ export const listarComentarios = async (req: Request, res: Response) => {
 
 export const excluirComentario = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params; 
-  
-    await comentarioService.excluir(String(id));
-    
+    const { id } = req.params;
+    const usuarioId = (req as any).usuario?.id;
+
+    if (!usuarioId) {
+      return res.status(401).json({ erro: "Usuário não autenticado." });
+    }
+
+    await comentarioService.excluir(String(id), usuarioId);
+
     res.status(200).json({ mensagem: "Comentário excluído com sucesso." });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ erro: error.message });
+    }
     res.status(500).json({ erro: "Erro ao excluir o comentário." });
   }
 };

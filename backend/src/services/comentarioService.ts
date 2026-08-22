@@ -29,7 +29,23 @@ export const buscarPorDenuncia = async (denunciaId: string) => {
   });
 };
 
-export const excluir = async (id: string) => {
+export const excluir = async (id: string, usuarioId: string) => {
+  const comentario = await prisma.comentario.findUnique({
+    where: { id },
+  });
+
+  if (!comentario) {
+    const error = new Error("Comentário não encontrado.");
+    (error as any).statusCode = 404;
+    throw error;
+  }
+
+  if (comentario.usuarioId !== usuarioId) {
+    const error = new Error("Não autorizado a excluir este comentário.");
+    (error as any).statusCode = 403;
+    throw error;
+  }
+
   return await prisma.comentario.delete({
     where: { id }
   });

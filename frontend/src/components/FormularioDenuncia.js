@@ -34,7 +34,9 @@ export function FormularioDenuncia() {
 
 try {
       // Cria a variável que decide se usa Nuvem ou Localhost
-      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      const API_URL = process.env.NODE_ENV === 'production' 
+        ? "https://voxcity-backend.onrender.com" 
+        : "http://localhost:3001";
 
       const resposta = await fetch(`${API_URL}/denuncias`, {
         method: "POST",
