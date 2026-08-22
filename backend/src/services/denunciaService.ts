@@ -133,7 +133,9 @@ export const validateCommunityNote = async (id: string) => {
   });
 };
 
-// ===== usado na aba "Mais Relevantes" =====
+//aba Mais Relevantes
+// Regra: filtra denúncias CRIADAS dentro do período selecionado,
+// ordenadas pelo total de apoios (do maior pro menor).
 
 const calcularDataLimite = (periodo: string): Date | null => {
   const agora = new Date();
@@ -168,28 +170,21 @@ export const findRelevantes = async (periodo: string) => {
   const dataLimite = calcularDataLimite(periodo);
 
   const denuncias = await prisma.denuncia.findMany({
+    where: dataLimite
+      ? { criadoEm: { gte: dataLimite } }
+      : {},
+    orderBy: { apoios: 'desc' },
     include: {
       usuario: {
         select: { nome: true },
       },
       apoiosDe: {
-        select: { usuarioId: true, criadoEm: true },
+        select: { usuarioId: true },
       },
     },
   });
 
-  const denunciasComContagem = denuncias.map((d) => {
-    const apoiosNoPeriodo = dataLimite
-      ? d.apoiosDe.filter((apoio) => new Date(apoio.criadoEm) >= dataLimite).length
-      : d.apoiosDe.length;
-
-    return { ...d, apoiosPeriodo: apoiosNoPeriodo };
-  });
-
-  // Só mantém denúncias que tiveram pelo menos 1 apoio dentro do período selecionado
-  const denunciasComApoio = denunciasComContagem.filter((d) => d.apoiosPeriodo > 0);
-
-  denunciasComApoio.sort((a, b) => b.apoiosPeriodo - a.apoiosPeriodo);
-
-  return denunciasComApoio;
+  return denuncias;
 };
+
+ 
