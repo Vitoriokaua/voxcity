@@ -7,26 +7,42 @@ import { FeedRelevantes } from "./FeedRelevantes";
 export function Feed({ denuncias, setDenuncias }) {
   const feedHooks = useFeed(setDenuncias);
   const [abaAtiva, setAbaAtiva] = useState("recentes");
-  const posicaoInicialX = useRef(null);
+  const posicaoInicial = useRef({ x: null, y: null });
 
   const aoTocarInicio = (e) => {
-    posicaoInicialX.current = e.touches[0].clientX;
+    posicaoInicial.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
   };
 
   const aoTocarFim = (e) => {
-    if (posicaoInicialX.current === null) return;
+    if (posicaoInicial.current.x === null) return;
 
     const posicaoFinalX = e.changedTouches[0].clientX;
-    const diferenca = posicaoInicialX.current - posicaoFinalX;
-    const limiteMinimo = 50;
+    const posicaoFinalY = e.changedTouches[0].clientY;
 
-    if (diferenca > limiteMinimo && abaAtiva === "recentes") {
-      setAbaAtiva("relevantes");
-    } else if (diferenca < -limiteMinimo && abaAtiva === "relevantes") {
-      setAbaAtiva("recentes");
+    const diferencaX = posicaoInicial.current.x - posicaoFinalX;
+    const diferencaY = posicaoInicial.current.y - posicaoFinalY;
+
+    const limiteMinimo = 50;
+    const movimentoHorizontal = Math.abs(diferencaX);
+    const movimentoVertical = Math.abs(diferencaY);
+
+    // Só considera "arrastar pra trocar de aba" se o movimento for
+    // claramente mais horizontal do que vertical (evita conflito com scroll)
+    const foiSwipeHorizontal =
+      movimentoHorizontal > limiteMinimo && movimentoHorizontal > movimentoVertical * 1.5;
+
+    if (foiSwipeHorizontal) {
+      if (diferencaX > 0 && abaAtiva === "recentes") {
+        setAbaAtiva("relevantes");
+      } else if (diferencaX < 0 && abaAtiva === "relevantes") {
+        setAbaAtiva("recentes");
+      }
     }
 
-    posicaoInicialX.current = null;
+    posicaoInicial.current = { x: null, y: null };
   };
 
   return (
