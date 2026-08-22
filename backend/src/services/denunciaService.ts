@@ -132,3 +132,64 @@ export const validateCommunityNote = async (id: string) => {
     },
   });
 };
+
+// ===== usado na aba "Mais Relevantes" =====
+
+const calcularDataLimite = (periodo: string): Date | null => {
+  const agora = new Date();
+
+  switch (periodo) {
+    case 'dia': {
+      const inicioDia = new Date(agora);
+      inicioDia.setHours(0, 0, 0, 0);
+      return inicioDia;
+    }
+    case 'semana': {
+      const seteDiasAtras = new Date(agora);
+      seteDiasAtras.setDate(agora.getDate() - 7);
+      return seteDiasAtras;
+    }
+    case 'mes': {
+      const trintaDiasAtras = new Date(agora);
+      trintaDiasAtras.setDate(agora.getDate() - 30);
+      return trintaDiasAtras;
+    }
+    case 'ano': {
+      const umAnoAtras = new Date(agora);
+      umAnoAtras.setFullYear(agora.getFullYear() - 1);
+      return umAnoAtras;
+    }
+    default:
+      return null; // 'todos'
+  }
+};
+
+export const findRelevantes = async (periodo: string) => {
+  const dataLimite = calcularDataLimite(periodo);
+
+  const denuncias = await prisma.denuncia.findMany({
+    include: {
+      usuario: {
+        select: { nome: true },
+      },
+      apoiosDe: {
+        select: { usuarioId: true, criadoEm: true },
+      },
+    },
+  });
+
+  const denunciasComContagem = denuncias.map((d) => {
+    const apoiosNoPeriodo = dataLimite
+      ? d.apoiosDe.filter((apoio) => new Date(apoio.criadoEm) >= dataLimite).length
+      : d.apoiosDe.length;
+
+    return { ...d, apoiosPeriodo: apoiosNoPeriodo };
+  });
+
+  // Só mantém denúncias que tiveram pelo menos 1 apoio dentro do período selecionado
+  const denunciasComApoio = denunciasComContagem.filter((d) => d.apoiosPeriodo > 0);
+
+  denunciasComApoio.sort((a, b) => b.apoiosPeriodo - a.apoiosPeriodo);
+
+  return denunciasComApoio;
+};

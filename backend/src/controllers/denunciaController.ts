@@ -112,3 +112,17 @@ export const validarNotaComunidade = async (req: Request, res: Response) => {
     res.status(500).json({ erro: "Erro interno ao validar nota da comunidade." });
   }
 };
+
+// usado na aba "Mais Relevantes" 
+export const getDenunciasRelevantes = async (req: Request, res: Response) => {
+  try {
+    const { periodo } = req.query;
+    const periodosValidos = ['dia', 'semana', 'mes', 'ano', 'todos'];
+    const periodoSelecionado = periodosValidos.includes(String(periodo)) ? String(periodo) : 'todos';
+
+    const denuncias = await denunciaService.findRelevantes(periodoSelecionado);
+    res.json(denuncias);
+  } catch (error) {
+    res.status(500).json({ erro: "Erro interno ao buscar denúncias relevantes." });
+  }
+};
