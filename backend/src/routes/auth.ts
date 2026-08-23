@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 router.post('/cadastro', async (req: Request, res: Response) => {
   try {
-    const { nome, email, senha, role } = req.body;
+    const { nome, email, senha } = req.body;
     const usuarioExiste = await prisma.usuario.findUnique({ where: { email } });
 
     if (usuarioExiste) {
@@ -24,7 +24,7 @@ router.post('/cadastro', async (req: Request, res: Response) => {
         nome,
         email,
         senha: senhaHash,
-        role: role || "CIDADAO"
+        role: "CIDADAO", // sempre CIDADAO no cadastro público, sem exceção
       }
     });
 

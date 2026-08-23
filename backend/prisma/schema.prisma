@@ -8,35 +8,39 @@ datasource db {
 }
 
 model Usuario {
-  id        String     @id @default(uuid())
-  nome      String
-  email     String     @unique
-  senha     String
-  role      String     @default("CIDADAO")
-  apoios    Apoio[]
-  denuncias Denuncia[]
-  comentarios Comentario[]
+  id           String                 @id @default(uuid())
+  nome         String
+  email        String                 @unique
+  senha        String
+  role         String                 @default("CIDADAO")
+  apoios       Apoio[]
+  denuncias    Denuncia[]
+  comentarios  Comentario[]
+  confirmacoes ConfirmacaoResolucao[]
 }
 
 model Denuncia {
-  id             String   @id @default(uuid())
+  id             String                 @id @default(uuid())
   descricao      String
   latitude       Float?
   longitude      Float?
   imagemUrl      String?
   fotoUrl        String?
+  fotoDepois     String?
+  status         String                 @default("PENDENTE")
   endereco       String?
-  apoios         Int      @default(0)
-  iaSinalizada   Boolean  @default(false)
-  criadoEm       DateTime @default(now())
+  apoios         Int                    @default(0)
+  iaSinalizada   Boolean                @default(false)
+  criadoEm       DateTime               @default(now())
   usuarioId      String?
-  anonimo        Boolean  @default(false)
+  anonimo        Boolean                @default(false)
   notaComunidade String?
-  notaStatus     String   @default("PENDENTE")
-  votosMod       Int      @default(0)
+  notaStatus     String                 @default("PENDENTE")
+  votosMod       Int                    @default(0)
   apoiosDe       Apoio[]
-  comentarios Comentario[]
-  usuario        Usuario? @relation(fields: [usuarioId], references: [id])
+  comentarios    Comentario[]
+  confirmacoes   ConfirmacaoResolucao[]
+  usuario        Usuario?               @relation(fields: [usuarioId], references: [id])
 }
 
 model Apoio {
@@ -51,11 +55,23 @@ model Apoio {
 }
 
 model Comentario {
-  id          String    @id @default(uuid())
-  texto       String
-  criadoEm DateTime @default(now())
-  usuarioId   String
-  denunciaId  String
-  usuario      Usuario   @relation(fields: [usuarioId], references: [id])
-  denuncia     Denuncia  @relation(fields: [denunciaId], references: [id])
+  id         String   @id @default(uuid())
+  texto      String
+  criadoEm   DateTime @default(now())
+  usuarioId  String
+  denunciaId String
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  denuncia   Denuncia @relation(fields: [denunciaId], references: [id])
+}
+
+model ConfirmacaoResolucao {
+  id         String   @id @default(uuid())
+  usuarioId  String
+  denunciaId String
+  resolvido  Boolean
+  criadoEm   DateTime @default(now())
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  denuncia   Denuncia @relation(fields: [denunciaId], references: [id])
+
+  @@unique([usuarioId, denunciaId])
 }

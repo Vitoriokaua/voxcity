@@ -6,12 +6,22 @@ import {
   CheckCircle,
   ThumbsUp,
   MessageCircle,
+  ThumbsDown,
 } from "lucide-react";
 import { ModalComentarios } from "./ModalComentarios";
 
 const API_URL = process.env.NODE_ENV === 'production' 
   ? "https://voxcity-backend.onrender.com" 
   : "http://localhost:3001";
+
+const STATUS_LABEL = {
+  PENDENTE: { texto: "Pendente", cor: "bg-red-600" },
+  EM_ANALISE: { texto: "Em Análise", cor: "bg-yellow-500" },
+  CONCLUIDA: { texto: "Concluída", cor: "bg-green-600" },
+};
+
+const montarUrlFoto = (caminho) =>
+  caminho.startsWith("http") ? caminho : `${API_URL}${caminho.startsWith("/") ? "" : "/"}${caminho}`;
 
 export function ReportCard({ denuncia: d, hooks }) {
   const {
@@ -22,6 +32,7 @@ export function ReportCard({ denuncia: d, hooks }) {
     acoesMod,
     salvarNotaComunidade,
     validarNota,
+    confirmarResolucao,
   } = hooks;
 
   const [isModalAberto, setIsModalAberto] = useState(false);
@@ -37,6 +48,15 @@ export function ReportCard({ denuncia: d, hooks }) {
     ? d.curtiu 
     : d.apoiosDe?.some((apoio) => apoio.usuarioId === usuarioLogado.id);
 
+  const statusAtual = d.status || "PENDENTE";
+  const statusInfo = STATUS_LABEL[statusAtual] || STATUS_LABEL.PENDENTE;
+  const estaConcluida = statusAtual === "CONCLUIDA";
+
+  const confirmacoes = d.confirmacoes || [];
+  const totalConfirmaram = confirmacoes.filter((c) => c.resolvido).length;
+  const totalNegaram = confirmacoes.filter((c) => !c.resolvido).length;
+  const meuVoto = confirmacoes.find((c) => c.usuarioId === usuarioLogado.id)?.resolvido;
+
   return (
     <>
       <div id={`denuncia-${d.id}`} className="w-full bg-zinc-900 p-4 rounded-xl border border-zinc-800 shadow-md flex flex-col gap-3">
@@ -48,17 +68,22 @@ export function ReportCard({ denuncia: d, hooks }) {
                 {d.anonimo ? "Anônimo" : d.usuario?.nome || "Cidadão"}
               </span>
             </div>
-            {campoData && (
-              <span className="text-[10px] text-zinc-500 font-mono">
-                {new Date(campoData).toLocaleString("pt-BR", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] font-bold text-white px-2.5 py-1 rounded-full ${statusInfo.cor}`}>
+                {statusInfo.texto}
               </span>
-            )}
+              {campoData && (
+                <span className="text-[10px] text-zinc-500 font-mono">
+                  {new Date(campoData).toLocaleString("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2 text-zinc-500 mt-1">
             <MapPin className="w-4 h-4 text-red-500" />
@@ -68,16 +93,35 @@ export function ReportCard({ denuncia: d, hooks }) {
           </div>
         </div>
 
-        {d.fotoUrl && (
-          <img
-            src={
-              d.fotoUrl.startsWith("http")
-                ? d.fotoUrl
-                : `${API_URL}${d.fotoUrl.startsWith("/") ? "" : "/"}${d.fotoUrl}`
-            }
-            alt="Ocorrência"
-            className="w-full h-48 object-cover rounded-xl border border-zinc-800"
-          />
+        {estaConcluida && d.fotoDepois ? (
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Antes</span>
+              {d.fotoUrl && (
+                <img
+                  src={montarUrlFoto(d.fotoUrl)}
+                  alt="Antes"
+                  className="w-full h-32 object-cover rounded-xl border border-zinc-800 mt-1"
+                />
+              )}
+            </div>
+            <div>
+              <span className="text-[10px] text-green-500 font-bold uppercase tracking-wider">Depois</span>
+              <img
+                src={montarUrlFoto(d.fotoDepois)}
+                alt="Depois"
+                className="w-full h-32 object-cover rounded-xl border border-green-800 mt-1"
+              />
+            </div>
+          </div>
+        ) : (
+          d.fotoUrl && (
+            <img
+              src={montarUrlFoto(d.fotoUrl)}
+              alt="Ocorrência"
+              className="w-full h-48 object-cover rounded-xl border border-zinc-800"
+            />
+          )
         )}
         
         <p className="text-zinc-100 text-sm">{d.descricao}</p>
@@ -108,6 +152,36 @@ export function ReportCard({ denuncia: d, hooks }) {
             <span>Comentar</span>
           </button>
         </div>
+
+        {estaConcluida && (
+          <div className="bg-green-950/30 border border-green-800/50 rounded-xl p-3 flex flex-col gap-2">
+            <span className="text-xs font-bold text-green-400">
+              Essa denúncia foi marcada como resolvida. O problema foi realmente solucionado?
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => confirmarResolucao(d.id, true)}
+                className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg transition-all ${
+                  meuVoto === true
+                    ? "bg-green-600 text-white"
+                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                }`}
+              >
+                <ThumbsUp className="w-3.5 h-3.5" /> Sim ({totalConfirmaram})
+              </button>
+              <button
+                onClick={() => confirmarResolucao(d.id, false)}
+                className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg transition-all ${
+                  meuVoto === false
+                    ? "bg-red-600 text-white"
+                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                }`}
+              >
+                <ThumbsDown className="w-3.5 h-3.5" /> Não ({totalNegaram})
+              </button>
+            </div>
+          </div>
+        )}
 
         {mostraNota && (
           <div

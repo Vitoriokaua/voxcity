@@ -30,6 +30,12 @@ export const findAll = async () => {
           usuarioId: true,
         },
       },
+      confirmacoes: {
+        select: {
+          usuarioId: true,
+          resolvido: true,
+        },
+      },
     },
   });
 };
@@ -93,6 +99,7 @@ export const deleteDenuncia = async (id: string, usuarioId: string) => {
 
   await prisma.comentario.deleteMany({ where: { denunciaId: id } });
   await prisma.apoio.deleteMany({ where: { denunciaId: id } });
+  await prisma.confirmacaoResolucao.deleteMany({ where: { denunciaId: id } });
 
   return prisma.denuncia.delete({
     where: { id },
@@ -133,10 +140,6 @@ export const validateCommunityNote = async (id: string) => {
   });
 };
 
-//aba Mais Relevantes
-// Regra: filtra denúncias CRIADAS dentro do período selecionado,
-// ordenadas pelo total de apoios (do maior pro menor).
-
 const calcularDataLimite = (periodo: string): Date | null => {
   const agora = new Date();
 
@@ -162,7 +165,7 @@ const calcularDataLimite = (periodo: string): Date | null => {
       return umAnoAtras;
     }
     default:
-      return null; // 'todos'
+      return null;
   }
 };
 
@@ -187,4 +190,100 @@ export const findRelevantes = async (periodo: string) => {
   return denuncias;
 };
 
- 
+// ===== NOVO: painel administrativo =====
+
+const STATUS_VALIDOS = ['PENDENTE', 'EM_ANALISE', 'CONCLUIDA'];
+
+export const atualizarStatus = async (id: string, novoStatus: string) => {
+  if (!STATUS_VALIDOS.includes(novoStatus)) {
+    const error = new Error("Status inválido. Use PENDENTE, EM_ANALISE ou CONCLUIDA.");
+    (error as any).statusCode = 400;
+    throw error;
+  }
+
+  const denuncia = await prisma.denuncia.findUnique({ where: { id } });
+
+  if (!denuncia) {
+    const error = new Error("Denúncia não encontrada.");
+    (error as any).statusCode = 404;
+    throw error;
+  }
+
+  return prisma.denuncia.update({
+    where: { id },
+    data: { status: novoStatus },
+    include: {
+      usuario: {
+        select: { nome: true },
+      },
+    },
+  });
+};
+
+export const concluirDenuncia = async (id: string, fotoDepoisUrl: string) => {
+  const denuncia = await prisma.denuncia.findUnique({ where: { id } });
+
+  if (!denuncia) {
+    const error = new Error("Denúncia não encontrada.");
+    (error as any).statusCode = 404;
+    throw error;
+  }
+
+  return prisma.denuncia.update({
+    where: { id },
+    data: {
+      status: 'CONCLUIDA',
+      fotoDepois: fotoDepoisUrl,
+    },
+    include: {
+      usuario: {
+        select: { nome: true },
+      },
+    },
+  });
+};
+
+export const confirmarResolucao = async (id: string, usuarioId: string, resolvido: boolean) => {
+  const denuncia = await prisma.denuncia.findUnique({ where: { id } });
+
+  if (!denuncia) {
+    const error = new Error("Denúncia não encontrada.");
+    (error as any).statusCode = 404;
+    throw error;
+  }
+
+  if (denuncia.status !== 'CONCLUIDA') {
+    const error = new Error("Só é possível avaliar denúncias já concluídas.");
+    (error as any).statusCode = 400;
+    throw error;
+  }
+
+  const confirmacaoExistente = await prisma.confirmacaoResolucao.findUnique({
+    where: {
+      usuarioId_denunciaId: {
+        usuarioId,
+        denunciaId: id,
+      },
+    },
+  });
+
+  if (confirmacaoExistente) {
+    await prisma.confirmacaoResolucao.update({
+      where: { id: confirmacaoExistente.id },
+      data: { resolvido },
+    });
+  } else {
+    await prisma.confirmacaoResolucao.create({
+      data: { usuarioId, denunciaId: id, resolvido },
+    });
+  }
+
+  const confirmacoes = await prisma.confirmacaoResolucao.findMany({
+    where: { denunciaId: id },
+  });
+
+  const totalConfirmaram = confirmacoes.filter((c) => c.resolvido).length;
+  const totalNegaram = confirmacoes.filter((c) => !c.resolvido).length;
+
+  return { totalConfirmaram, totalNegaram };
+};

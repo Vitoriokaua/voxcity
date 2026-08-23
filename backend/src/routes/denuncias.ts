@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { verificarToken, apenasModerador } from '../middlewares/authMiddleware.js';
+import { verificarToken, apenasModerador, apenasAdministrativo } from '../middlewares/authMiddleware.js';
 import uploadCloudinary from '../../configCloudinary.js';
 import * as denunciaController from '../controllers/denunciaController.js';
 import upvoteRoutes from './upvotes.js';
@@ -15,6 +15,9 @@ router.patch('/:id', verificarToken, denunciaController.updateDenuncia);
 router.delete('/:id', verificarToken, denunciaController.deleteDenuncia);
 router.patch('/:id/nota', verificarToken, apenasModerador, denunciaController.addNotaComunidade);
 router.patch('/:id/nota/validar', verificarToken, apenasModerador, denunciaController.validarNotaComunidade);
+router.patch('/:id/status', verificarToken, apenasAdministrativo, denunciaController.atualizarStatusDenuncia);
+router.patch('/:id/concluir', verificarToken, apenasAdministrativo, uploadCloudinary.single('fotoDepois'), denunciaController.concluirDenuncia);
+router.post('/:id/confirmar-resolucao', verificarToken, denunciaController.confirmarResolucaoDenuncia);
 router.use('/:id/apoiar', upvoteRoutes);
 router.use('/:id/comentarios', comentarioRoutes);
 

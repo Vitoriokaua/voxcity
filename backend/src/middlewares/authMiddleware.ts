@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken'; // 1. Corrigido para alinhar com o auth.ts
+import jwt from 'jsonwebtoken';
 
 export const verificarToken = (req: any, res: Response, next: NextFunction) => {
   
@@ -31,5 +31,15 @@ export const apenasModerador = (req: Request, res: Response, next: NextFunction)
     return res.status(403).json({ erro: "Acesso negado. Apenas moderadores." });
   }
   
+  next();
+};
+
+export const apenasAdministrativo = (req: Request, res: Response, next: NextFunction) => {
+  const usuario = res.locals.usuario;
+
+  if (!usuario || usuario.role !== 'ADMINISTRATIVO') {
+    return res.status(403).json({ erro: "Acesso negado. Apenas administrativo." });
+  }
+
   next();
 };

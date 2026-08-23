@@ -111,12 +111,67 @@ export function useFeed(setDenuncias) {
         localStorage.setItem("acoesMod", JSON.stringify(novasAcoes));
 
         toast.success("Voto computado!");
-        setTimeout(() => window.location.reload(), 1500); // Reload suave só pra notas
+        setTimeout(() => window.location.reload(), 1500); 
       } else {
         toast.error("Erro ao validar nota.");
       }
     } catch (erro) {
       console.error("Erro ao conectar com o servidor:", erro);
+    }
+  };
+
+  const confirmarResolucao = async (idDenuncia, resolvido) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("Você precisa estar logado para avaliar essa resolução.");
+      return;
+    }
+
+    try {
+      const resposta = await fetch(
+        `${API_URL}/denuncias/${idDenuncia}/confirmar-resolucao`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ resolvido }),
+        },
+      );
+
+      if (resposta.ok) {
+        // Atualiza localmente o voto desse usuário na denúncia, sem precisar recarregar a página
+        setDenuncias((prev) =>
+          prev.map((d) => {
+            if (d.id !== idDenuncia) return d;
+
+            const confirmacoesAtuais = d.confirmacoes || [];
+            const semMeuVotoAntigo = confirmacoesAtuais.filter(
+              (c) => c.usuarioId !== usuarioLogado.id,
+            );
+
+            return {
+              ...d,
+              confirmacoes: [
+                ...semMeuVotoAntigo,
+                { usuarioId: usuarioLogado.id, resolvido },
+              ],
+            };
+          }),
+        );
+
+        toast.success(
+          resolvido ? "Obrigado por confirmar!" : "Feedback registrado, obrigado!",
+        );
+      } else {
+        const erro = await resposta.json();
+        toast.error(erro.erro || "Erro ao registrar sua avaliação.");
+      }
+    } catch (erro) {
+      console.error("Erro ao conectar com o servidor:", erro);
+      toast.error("Erro de conexão.");
     }
   };
 
@@ -128,5 +183,6 @@ export function useFeed(setDenuncias) {
     acoesMod,
     salvarNotaComunidade,
     validarNota,
+    confirmarResolucao,
   };
 }

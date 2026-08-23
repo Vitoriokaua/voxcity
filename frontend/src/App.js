@@ -7,6 +7,7 @@ import TelaLogin from "./components/TelaLogin";
 import { Perfil } from "./components/Perfil";
 import { Notificacoes } from "./components/Notificacoes";
 import { Mapa } from "./components/Mapa";
+import { PainelAdministrativo } from "./components/PainelAdministrativo";
 import { useBusca } from "./components/useBusca";
 
 const API_URL = process.env.NODE_ENV === 'production' 
@@ -77,6 +78,7 @@ function App() {
         {pagina === "mapa" && <Mapa denuncias={denuncias} irParaDenuncia={irParaDenuncia} />}
         {pagina === "notificacoes" && <Notificacoes />}
         {pagina === "perfil" && <Perfil />}
+        {pagina === "admin" && <PainelAdministrativo />}
       </main>
 
       <Navbar pagina={pagina} setPagina={setPagina} usuario={usuario} />
