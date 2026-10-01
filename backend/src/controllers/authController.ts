@@ -21,8 +21,7 @@ export const esqueciSenha = async (req: Request, res: Response) => {
     console.error("❌ ERRO RECUPERAÇÃO DE SENHA:", error);
 
     return res.status(500).json({
-      erro: "Erro ao solicitar recuperação de senha.",
-      detalhe: error instanceof Error ? error.message : String(error)
+      erro: "Erro ao solicitar recuperação de senha."
     });
   }
 };
@@ -59,8 +58,7 @@ export const redefinirSenha = async (req: Request, res: Response) => {
     }
 
     return res.status(500).json({
-      erro: "Erro ao redefinir senha.",
-      detalhe: error instanceof Error ? error.message : String(error)
+      erro: "Erro ao redefinir senha."
     });
   }
 };
