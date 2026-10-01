@@ -1,5 +1,5 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -10,34 +10,79 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+async function buscarEndereco(lat, lng) {
+  try {
+    const resposta = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+    const dados = await resposta.json();
+
+    const endereco = dados.address;
+    const bairro = endereco.suburb || endereco.neighbourhood || endereco.city_district || "";
+    const cidade = endereco.city || endereco.town || endereco.village || "Patos";
+    return bairro ? `${bairro}, ${cidade}` : cidade;
+  } catch (error) {
+    return "Endereço não encontrado";
+  }
+}
+
 function MarcadorDinamico({ posicao, setPosicao, setEndereco }) {
   useMapEvents({
     async click(e) {
       setPosicao(e.latlng);
-      
-      try {
-        const resposta = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}`);
-        const dados = await resposta.json();
-        
-        const endereco = dados.address;
-        const bairro = endereco.suburb || endereco.neighbourhood || endereco.city_district || "";
-        const cidade = endereco.city || endereco.town || endereco.village || "Patos";
-        const localFormatado = bairro ? `${bairro}, ${cidade}` : cidade;
-        
-        setEndereco(localFormatado);
-      } catch (error) {
-        setEndereco("Endereço não encontrado");
-      }
+      const localFormatado = await buscarEndereco(e.latlng.lat, e.latlng.lng);
+      setEndereco(localFormatado);
     },
   });
   return posicao === null ? null : <Marker position={posicao} />;
 }
 
+function RecentrarMapa({ posicao }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (posicao) {
+      map.flyTo(posicao, 16);
+    }
+  }, [posicao, map]);
+
+  return null;
+}
+
 export function FormEtapaMapa({ posicao, setPosicao, setEndereco, onVoltar, onEnviar }) {
+  const [buscandoLocalizacao, setBuscandoLocalizacao] = useState(true);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setBuscandoLocalizacao(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (posicaoAtual) => {
+        const { latitude, longitude } = posicaoAtual.coords;
+        const novaPosicao = { lat: latitude, lng: longitude };
+
+        setPosicao(novaPosicao);
+        const localFormatado = await buscarEndereco(latitude, longitude);
+        setEndereco(localFormatado);
+        setBuscandoLocalizacao(false);
+      },
+      () => {
+        // Usuário negou a permissão ou deu erro — segue com seleção manual
+        setBuscandoLocalizacao(false);
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       <h2 className="text-lg font-semibold mb-2 text-white">Selecione o Local</h2>
-      <p className="text-sm text-zinc-400 mb-4">Clique no mapa para marcar onde ocorreu o problema.</p>
+      <p className="text-sm text-zinc-400 mb-4">
+        {buscandoLocalizacao
+          ? "Buscando sua localização atual..."
+          : "Já marcamos sua localização atual. Clique no mapa para ajustar, se necessário."}
+      </p>
       
       <div className="h-[250px] w-full rounded-xl overflow-hidden border border-zinc-700 mb-4 z-0">
         <MapContainer 
@@ -50,6 +95,7 @@ export function FormEtapaMapa({ posicao, setPosicao, setEndereco, onVoltar, onEn
             attribution='&copy; OpenStreetMap'
           />
           <MarcadorDinamico posicao={posicao} setPosicao={setPosicao} setEndereco={setEndereco} />
+          <RecentrarMapa posicao={posicao} />
         </MapContainer>
       </div>
 
