@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📢 VoxCity - Sistema de Denúncias Urbanas
+# 📢 VozCity - Sistema de Denúncias Urbanas
 
 O megafone digital da nossa cidade! 🏙️
 
@@ -8,7 +8,7 @@ O megafone digital da nossa cidade! 🏙️
 
 </div>
 
-## 🌐 **Acesse o site:** [VoxCity](https://voxcity-swart.vercel.app/)
+## 🌐 **Acesse o site:** [VozCity](https://voxcity-swart.vercel.app/)
 
 ## 🛠️ Pré-requisitos
 
