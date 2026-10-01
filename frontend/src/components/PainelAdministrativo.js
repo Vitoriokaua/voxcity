@@ -38,6 +38,17 @@ function CardAdmin({ denuncia: d, atualizarStatus, concluirDenuncia, enviandoId 
         </span>
       </div>
 
+      {d.latitude && d.longitude && (
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${d.latitude},${d.longitude}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-blue-400 hover:text-blue-300 underline flex items-center gap-1 w-fit"
+        >
+          Abrir localização no Google Maps
+        </a>
+      )}
+
       {d.fotoUrl && (
         <img
           src={d.fotoUrl.startsWith("http") ? d.fotoUrl : `${API_URL}${d.fotoUrl.startsWith("/") ? "" : "/"}${d.fotoUrl}`}
