@@ -22,7 +22,7 @@ export function Header({ usuario, setPagina, termoBusca, setTermoBusca }) {
           <div>
             <h1 className="text-xl font-bold flex items-center gap-2 text-white">
               <ShieldAlert className="text-red-500 w-6 h-6" />
-              VoxCity
+              VozCity
             </h1>
             <p className="text-xs text-zinc-400 font-medium mt-1">
               Feed de Denúncias
@@ -91,9 +91,9 @@ export function Header({ usuario, setPagina, termoBusca, setTermoBusca }) {
             </button>
             <h2 className="text-lg font-bold text-white mb-4">Termos de Uso</h2>
             <div className="text-sm text-zinc-400 max-h-60 overflow-y-auto pr-2 space-y-3 leading-relaxed">
-              <p><strong>1. Objetivo:</strong> O VoxCity é uma plataforma colaborativa focada em zeladoria urbana e utilidade pública.</p>
+              <p><strong>1. Objetivo:</strong> O VozCity é uma plataforma colaborativa focada em zeladoria urbana e utilidade pública.</p>
               <p><strong>2. Responsabilidade:</strong> Ao utilizar o sistema, você se compromete a publicar informações reais e imagens condizentes com os problemas relatados.</p>
-              <p><strong>3. Moderação:</strong> A equipe do VoxCity reserva-se o direito de excluir postagens abusivas, falsas ou que violem os direitos de terceiros, aplicando Notas da Comunidade quando necessário.</p>
+              <p><strong>3. Moderação:</strong> A equipe do VozCity reserva-se o direito de excluir postagens abusivas, falsas ou que violem os direitos de terceiros, aplicando Notas da Comunidade quando necessário.</p>
             </div>
             <button
               onClick={() => setMostrarTermos(false)}

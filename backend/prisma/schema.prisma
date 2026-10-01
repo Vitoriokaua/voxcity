@@ -8,15 +8,17 @@ datasource db {
 }
 
 model Usuario {
-  id           String                 @id @default(uuid())
-  nome         String
-  email        String                 @unique
-  senha        String
-  role         String                 @default("CIDADAO")
-  apoios       Apoio[]
-  denuncias    Denuncia[]
-  comentarios  Comentario[]
-  confirmacoes ConfirmacaoResolucao[]
+  id                    String                 @id @default(uuid())
+  nome                  String
+  email                 String                 @unique
+  senha                 String
+  role                  String                 @default("CIDADAO")
+  codigoResetSenha      String?
+  codigoResetExpiraEm   DateTime?
+  apoios                Apoio[]
+  denuncias             Denuncia[]
+  comentarios           Comentario[]
+  confirmacoes          ConfirmacaoResolucao[]
 }
 
 model Denuncia {

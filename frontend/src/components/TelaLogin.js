@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Mail, Lock, User, MapPin, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
+import { RecuperarSenha } from "./RecuperarSenha";
 
 const TelaLogin = ({ aoLogar, aoVoltar }) => {
   const [modo, setModo] = useState("login");
@@ -8,6 +9,7 @@ const TelaLogin = ({ aoLogar, aoVoltar }) => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+  const [mostrarRecuperacao, setMostrarRecuperacao] = useState(false);
 
 
   const API_URL = process.env.NODE_ENV === "development" 
@@ -46,6 +48,10 @@ const TelaLogin = ({ aoLogar, aoVoltar }) => {
       setErro(err.message);
     }
   };
+
+  if (mostrarRecuperacao) {
+    return <RecuperarSenha aoVoltar={() => setMostrarRecuperacao(false)} />;
+  }
 
   return (
     <div className="w-full max-w-md bg-zinc-900/80 backdrop-blur-md p-8 rounded-3xl border border-zinc-800/80 shadow-2xl relative">
@@ -145,6 +151,16 @@ const TelaLogin = ({ aoLogar, aoVoltar }) => {
           />
         </div>
 
+        {modo === "login" && (
+          <button
+            type="button"
+            onClick={() => setMostrarRecuperacao(true)}
+            className="text-right text-zinc-500 text-xs hover:text-red-400 transition-colors -mt-2"
+          >
+            Esqueci minha senha
+          </button>
+        )}
+
         {erro && (
           <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-lg text-center mt-2">
             <p className="text-red-400 text-xs font-medium">{erro}</p>
@@ -162,4 +178,4 @@ const TelaLogin = ({ aoLogar, aoVoltar }) => {
   );
 };
 
-export default TelaLogin;
+export default TelaLogin; 

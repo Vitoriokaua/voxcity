@@ -22,3 +22,4 @@ router.use('/:id/apoiar', upvoteRoutes);
 router.use('/:id/comentarios', comentarioRoutes);
 
 export default router;
+
